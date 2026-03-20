@@ -8,9 +8,9 @@ import img5 from '@assets/image5_1774035580673.jpeg';
 import img6 from '@assets/image6_1774035362433.jpeg';
 
 const POLAROIDS = [
-  { img: img1, msg: 'Every moment with you is a blessing \uD83D\uDC9B', rotate: '-3deg' },
+  { img: img1, msg: 'So glad you exist in this world 🌸', rotate: '-3deg' },
   { img: img2, msg: 'Your smile lights up every room \uD83C\uDF38', rotate: '2deg' },
-  { img: img3, msg: "Here's to all our beautiful memories \u2728", rotate: '-1.5deg' },
+  { img: img3, msg: '22 and absolutely glowing 💫', rotate: '-1.5deg' },
   { img: img4, msg: 'Wishing you endless happiness \uD83C\uDF82', rotate: '2.5deg' },
   { img: img5, msg: 'You deserve the whole world and more \uD83C\uDF3A', rotate: '-2deg' },
   { img: img6, msg: 'Happy 22nd \u2014 stay magical always \uD83D\uDC96', rotate: '1.5deg' },
