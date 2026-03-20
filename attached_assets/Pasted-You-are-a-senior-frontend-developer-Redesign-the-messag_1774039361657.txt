@@ -1,0 +1,125 @@
+You are a senior frontend developer.
+
+Redesign the message opening experience with a premium foldable letter animation.
+
+-----------------------------------
+GOAL
+-----------------------------------
+
+Current:
+- Envelope click → directly shows message card
+
+Required:
+- Envelope click → opens a FOLDABLE LETTER CARD with animation
+
+-----------------------------------
+1. ENVELOPE → FOLD ANIMATION
+-----------------------------------
+
+- Keep the envelope UI as it is
+- On click:
+  → Animate opening like a letter/card unfolding
+
+Animation idea:
+  • Scale + rotate (slight 3D feel)
+  • Smooth transition (ease-in-out)
+  • Duration: ~600–900ms
+
+-----------------------------------
+2. CARD LAYOUT (MAIN CHANGE)
+-----------------------------------
+
+After opening, show a horizontal card with TWO sections:
+
+LEFT SIDE:
+- Polaroid-style image (use existing polaroid styling)
+- Image should:
+  • Keep same design (border, shadow, caption)
+  • Continue shuffle behavior on reload
+
+RIGHT SIDE:
+- Message content (same as current letter)
+- Do NOT change text content
+
+Layout:
+[ LEFT: Polaroid Image ]   [ RIGHT: Message ]
+
+-----------------------------------
+3. REMOVE OLD POLAROID POSITION
+-----------------------------------
+
+- Remove the current right-side floating polaroid card
+- It should ONLY exist inside the foldable card
+
+-----------------------------------
+4. KEEP MUSIC PLAYER (IMPORTANT)
+-----------------------------------
+
+- Music player must remain EXACTLY as it is
+- Position and functionality unchanged
+
+-----------------------------------
+5. ANIMATION DETAILS
+-----------------------------------
+
+Card opening animation:
+
+- Step 1:
+  Envelope click
+
+- Step 2:
+  Card expands from center
+
+- Step 3:
+  Slight rotateY (like opening a book)
+
+- Step 4:
+  Content fades in
+
+Optional polish:
+- Add subtle shadow depth
+- Add slight hover effect after open
+
+-----------------------------------
+6. RESPONSIVENESS
+-----------------------------------
+
+- Desktop:
+  Side-by-side layout (image + message)
+
+- Mobile:
+  Stack layout:
+    Image on top
+    Message below
+
+-----------------------------------
+7. REUSE EXISTING LOGIC
+-----------------------------------
+
+- Reuse existing:
+  • Polaroid image component
+  • Shuffle logic
+  • Message content
+  • Styling theme
+
+-----------------------------------
+STRICT RULES
+-----------------------------------
+
+- Do NOT break:
+  • Scratch feature
+  • Lyrics system
+  • Background randomizer
+  • Music player
+
+- Only modify:
+  • Message opening UI
+  • Layout of card
+
+-----------------------------------
+OUTPUT
+-----------------------------------
+
+- Provide updated component code
+- Mention file names clearly
+- Keep code clean and modular

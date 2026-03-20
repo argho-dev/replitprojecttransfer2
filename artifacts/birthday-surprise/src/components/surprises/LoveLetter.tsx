@@ -326,12 +326,8 @@ export default function LoveLetter({ message, onReveal }: P) {
           {/* The actual letter content — ref'd so we can measure it */}
           <div
             ref={cardRef}
-            style={{
-              background: 'rgba(255,255,255,.92)', backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,121,198,.4)', borderRadius: 20,
-              padding: 'clamp(20px,5vw,32px)',
-              boxShadow: '0 8px 48px rgba(200,80,150,.25)',
-            }}
+            className="letter-card"
+            style={{ padding: 'clamp(20px,5vw,32px)' }}
           >
             <div style={{ textAlign: 'center', marginBottom: 'clamp(12px,3vw,20px)' }}>
               <div style={{ fontSize: 'clamp(2rem,7vw,3.2rem)', lineHeight: 1, marginBottom: 8 }}>💌</div>

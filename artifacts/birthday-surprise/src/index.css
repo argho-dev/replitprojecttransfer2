@@ -542,3 +542,22 @@ button, [role="button"] {
   50%  { transform: translateY(-18px) rotate(2deg); }
   100% { transform: translateY(0px) rotate(-2deg); }
 }
+
+/* ============ LETTER CARD — paper texture + glow ============ */
+.letter-card {
+  position: relative;
+  background-color: #fdf8f4;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"),
+    linear-gradient(160deg, rgba(255,255,255,0.6) 0%, rgba(253,240,248,0.55) 50%, rgba(248,242,255,0.5) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 121, 198, 0.35);
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.6) inset,
+    0 2px 6px rgba(255,121,198,0.12) inset,
+    0 6px 24px rgba(200, 80, 150, 0.18),
+    0 16px 56px rgba(189, 147, 249, 0.18),
+    0 32px 80px rgba(200, 80, 150, 0.10);
+}
