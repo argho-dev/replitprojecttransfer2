@@ -1,5 +1,6 @@
 import { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
 import { gsap } from 'gsap';
+import { isBirthdayFinalDay } from '../../lib/surprises';
 import img1 from '@assets/image1_1774035362435.jpeg';
 import img2 from '@assets/image2_1774035362433.jpeg';
 import img3 from '@assets/image3_1774035362434.jpeg';
@@ -8,6 +9,15 @@ import img5 from '@assets/image5_1774035580673.jpeg';
 import img6 from '@assets/image6_1774035362433.jpeg';
 
 const HER_PHOTOS = [img1, img2, img3, img4, img5, img6];
+
+const BIRTHDAY_CAPTIONS = [
+  'Happy 22nd, Anuska! 🎂',
+  'Shine bright today ✨',
+  '22 looks so good on you 💛',
+  'Born to sparkle 🌸',
+  'Making the world warmer 🌟',
+  'Wishing you all the magic 💫',
+];
 
 const KF = `
 @keyframes envelopeBob{0%,100%{transform:translateY(0) rotate(-3deg) scale(1)}50%{transform:translateY(-18px) rotate(4deg) scale(1.06)}}
@@ -33,7 +43,13 @@ export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
   const [stage, setStage]           = useState<Stage>('envelope');
   const [scratchPct, setScratchPct] = useState(0);
 
-  const randomPhoto = useMemo(() => HER_PHOTOS[Math.floor(Math.random() * HER_PHOTOS.length)], []);
+  const { randomPhoto, birthdayCaption } = useMemo(() => {
+    const idx = Math.floor(Math.random() * HER_PHOTOS.length);
+    return {
+      randomPhoto: HER_PHOTOS[idx],
+      birthdayCaption: BIRTHDAY_CAPTIONS[idx % BIRTHDAY_CAPTIONS.length],
+    };
+  }, []);
 
   const envelopeRef   = useRef<HTMLDivElement>(null);
   const cardRef       = useRef<HTMLDivElement>(null);
@@ -319,10 +335,10 @@ export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
             fontFamily: "'Caveat', cursive",
             fontWeight: 700,
             fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
-            color: '#1a1a1a',
+            color: isBirthdayFinalDay() ? '#c2185b' : '#1a1a1a',
             letterSpacing: '0.03em',
           }}>
-            Pretty She
+            {isBirthdayFinalDay() ? birthdayCaption : 'Pretty She'}
           </div>
         </div>
       </div>
