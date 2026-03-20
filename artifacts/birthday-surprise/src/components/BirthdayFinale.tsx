@@ -4,7 +4,7 @@ import img1 from '@assets/image1_1774035362435.jpeg';
 import img2 from '@assets/image2_1774035362433.jpeg';
 import img3 from '@assets/image3_1774035362434.jpeg';
 import img4 from '@assets/image4_1774035362434.jpeg';
-import img5 from '@assets/image5_1774035362434.jpeg';
+import img5 from '@assets/image5_1774035580673.jpeg';
 import img6 from '@assets/image6_1774035362433.jpeg';
 
 const POLAROIDS = [
@@ -23,7 +23,6 @@ export default function BirthdayFinale() {
   const [phase, setPhase]         = useState<'black' | 'heartbeat' | 'gallery'>('black');
   const [visibleCards, setVisible] = useState<boolean[]>(Array(6).fill(false));
 
-  // Phase sequence
   useEffect(() => {
     const t1 = setTimeout(() => setPhase('heartbeat'), 800);
     const t2 = setTimeout(() => {
@@ -35,7 +34,6 @@ export default function BirthdayFinale() {
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
-  // Stagger polaroid cards in
   useEffect(() => {
     if (phase !== 'gallery') return;
     POLAROIDS.forEach((_, i) => {
@@ -45,7 +43,6 @@ export default function BirthdayFinale() {
     });
   }, [phase]);
 
-  // Fireworks canvas (runs during gallery)
   useEffect(() => {
     if (phase !== 'gallery') return;
     const canvas = canvasRef.current;
@@ -102,67 +99,89 @@ export default function BirthdayFinale() {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden"
-      style={{ background: '#050510' }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: '#050510',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+      }}
     >
-      {/* Fireworks */}
       {phase === 'gallery' && (
-        <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }} />
+        <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1 }} />
       )}
 
-      {/* Red heart beat */}
       {phase === 'heartbeat' && (
         <div
-          className="z-10 heartbeat"
+          className="heartbeat"
           style={{
             fontSize: 'clamp(80px, 20vw, 140px)',
             filter: 'drop-shadow(0 0 40px #ff2d78) drop-shadow(0 0 80px #ff0050)',
             lineHeight: 1,
+            zIndex: 10,
           }}
         >
           ❤️
         </div>
       )}
 
-      {/* Polaroid gallery */}
       {phase === 'gallery' && (
         <div
-          className="relative z-10 flex flex-col items-center"
-          style={{ width: '100%', maxHeight: '100vh', overflowY: 'auto', padding: '1.5rem 1rem' }}
+          style={{
+            position: 'relative',
+            zIndex: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: '100%',
+            height: '100vh',
+            padding: 'clamp(6px, 1.5vh, 16px) clamp(8px, 2vw, 24px)',
+            boxSizing: 'border-box',
+            overflow: 'hidden',
+          }}
         >
           {/* Header */}
           <div
             className="shimmer-text"
             style={{
-              fontSize: 'clamp(1.3rem, 4vw, 2rem)',
+              fontSize: 'clamp(1rem, 3vw, 1.6rem)',
               fontWeight: 800,
-              marginBottom: '1.5rem',
+              marginBottom: 'clamp(4px, 1vh, 12px)',
               textAlign: 'center',
-              lineHeight: 1.3,
+              lineHeight: 1.2,
+              flexShrink: 0,
             }}
           >
             Happy 22nd Birthday, Anuska 🎀
           </div>
 
-          {/* 3-col × 2-row polaroid grid */}
+          {/* 3×2 polaroid grid — fills remaining height */}
           <div
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 'clamp(12px, 3vw, 28px)',
+              gridTemplateRows: 'repeat(2, 1fr)',
+              gap: 'clamp(6px, 1.5vw, 16px)',
+              flex: 1,
               width: '100%',
-              maxWidth: 860,
+              maxWidth: 900,
+              minHeight: 0,
             }}
           >
             {POLAROIDS.map((p, i) => (
               <div
                 key={i}
                 style={{
-                  opacity:    visibleCards[i] ? 1 : 0,
-                  transform:  visibleCards[i]
+                  opacity:   visibleCards[i] ? 1 : 0,
+                  transform: visibleCards[i]
                     ? `rotate(${p.rotate}) scale(1)`
-                    : `rotate(${p.rotate}) scale(0.6) translateY(30px)`,
+                    : `rotate(${p.rotate}) scale(0.6) translateY(20px)`,
                   transition: 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.34,1.56,0.64,1)',
+                  minHeight: 0,
+                  display: 'flex',
                 }}
               >
                 {/* Polaroid frame */}
@@ -170,37 +189,45 @@ export default function BirthdayFinale() {
                   style={{
                     background: '#fff',
                     borderRadius: 4,
-                    padding: '8px 8px 32px 8px',
+                    padding: 'clamp(4px, 0.6vw, 8px) clamp(4px, 0.6vw, 8px) clamp(18px, 3.5vh, 36px)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    cursor: 'default',
+                    width: '100%',
+                    minHeight: 0,
+                    overflow: 'hidden',
                   }}
                 >
-                  {/* Photo — full image, no cropping */}
-                  <img
-                    src={p.img}
-                    alt=""
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      display: 'block',
-                      borderRadius: 2,
-                    }}
-                  />
+                  {/* Photo — fills available space, no crop */}
+                  <div style={{ flex: 1, minHeight: 0, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    <img
+                      src={p.img}
+                      alt=""
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        width: 'auto',
+                        height: 'auto',
+                        display: 'block',
+                        borderRadius: 2,
+                        objectFit: 'contain',
+                      }}
+                    />
+                  </div>
 
-                  {/* Message below photo */}
+                  {/* Caption */}
                   <div
                     style={{
-                      marginTop: 8,
-                      fontSize: 'clamp(0.58rem, 1.4vw, 0.75rem)',
+                      fontSize: 'clamp(0.5rem, 1.1vw, 0.72rem)',
                       color: '#333',
                       textAlign: 'center',
                       fontFamily: "'Georgia', serif",
                       fontStyle: 'italic',
-                      lineHeight: 1.4,
+                      lineHeight: 1.3,
                       padding: '0 4px',
+                      flexShrink: 0,
+                      marginTop: 4,
                     }}
                   >
                     {p.msg}
@@ -210,10 +237,10 @@ export default function BirthdayFinale() {
             ))}
           </div>
 
-          {/* Bottom celebrate button */}
+          {/* Celebrate button */}
           <button
             className="glow-button"
-            style={{ marginTop: '1.8rem' }}
+            style={{ marginTop: 'clamp(4px, 1vh, 12px)', flexShrink: 0 }}
             onClick={() => { spawnConfetti(25); spawnConfetti(50); spawnConfetti(75); }}
           >
             Celebrate! 🎊
