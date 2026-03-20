@@ -5,6 +5,107 @@ const TOTAL_FLAMES = 2;
 const BLOW_COOLDOWN_MS = 800;
 const BLOW_RMS_THRESHOLD = 0.035;
 
+type Phase = 'teddy' | 'petals' | 'cake';
+
+// ── Petal blast canvas ───────────────────────────────────────────────────────
+function PetalBlast({ onDone }: { onDone: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const symbols = ['🌸', '🌺', '🌹', '🌷', '🍀', '✿', '❀', '🌼'];
+
+    type Petal = {
+      x: number; y: number;
+      vx: number; vy: number;
+      size: number; rotation: number;
+      rotSpeed: number; life: number;
+      decay: number; symbol: string;
+    };
+
+    const petals: Petal[] = [];
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+
+    // Burst 180 petals from center
+    for (let i = 0; i < 180; i++) {
+      const angle  = Math.random() * Math.PI * 2;
+      const speed  = 4 + Math.random() * 14;
+      petals.push({
+        x: cx, y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 3,
+        size: 18 + Math.random() * 28,
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.18,
+        life: 1,
+        decay: 0.008 + Math.random() * 0.008,
+        symbol: symbols[Math.floor(Math.random() * symbols.length)],
+      });
+    }
+
+    let raf: number;
+    const loop = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Soft white flash that fades
+      const flashAlpha = Math.max(0, petals[0]?.life ?? 0) * 0.35;
+      ctx.fillStyle = `rgba(255,255,255,${flashAlpha})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      let alive = 0;
+      for (const p of petals) {
+        if (p.life <= 0) continue;
+        alive++;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.22;           // gravity
+        p.vx *= 0.98;
+        p.rotation += p.rotSpeed;
+        p.life -= p.decay;
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.font = `${p.size}px serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(p.symbol, 0, 0);
+        ctx.restore();
+      }
+
+      if (alive > 0) {
+        raf = requestAnimationFrame(loop);
+      } else {
+        onDone();
+      }
+    };
+    loop();
+
+    return () => cancelAnimationFrame(raf);
+  }, [onDone]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed', inset: 0,
+        width: '100%', height: '100%',
+        zIndex: 50, pointerEvents: 'none',
+      }}
+    />
+  );
+}
+
+// ── Flame ────────────────────────────────────────────────────────────────────
 interface FlameProps {
   lit: boolean;
   justBlown: boolean;
@@ -16,22 +117,14 @@ function Flame({ lit, justBlown, onClick }: FlameProps) {
     <div
       onClick={lit ? onClick : undefined}
       style={{
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        cursor: lit ? 'pointer' : 'default',
-        height: 48,
-        justifyContent: 'flex-end',
+        position: 'relative', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', cursor: lit ? 'pointer' : 'default',
+        height: 48, justifyContent: 'flex-end',
       }}
     >
-      {/* Outer glow */}
       {lit && (
         <div style={{
-          position: 'absolute',
-          bottom: 4,
-          width: 28,
-          height: 34,
+          position: 'absolute', bottom: 4, width: 28, height: 34,
           borderRadius: '50% 50% 30% 30%',
           background: 'radial-gradient(ellipse at 50% 70%, rgba(255,200,0,0.35) 0%, transparent 70%)',
           filter: 'blur(6px)',
@@ -39,11 +132,8 @@ function Flame({ lit, justBlown, onClick }: FlameProps) {
           pointerEvents: 'none',
         }} />
       )}
-
-      {/* Flame body */}
       <div style={{
-        width: 18,
-        height: lit ? 36 : 0,
+        width: 18, height: lit ? 36 : 0,
         background: lit
           ? 'radial-gradient(ellipse at 50% 80%, #fff 8%, #ffe566 35%, #ff9900 65%, #ff4400 90%, transparent 100%)'
           : 'transparent',
@@ -53,28 +143,18 @@ function Flame({ lit, justBlown, onClick }: FlameProps) {
         transition: 'height 0.3s ease, opacity 0.3s ease',
         opacity: lit ? 1 : 0,
       }} />
-
-      {/* Wick */}
       <div style={{
-        width: 3,
-        height: 8,
+        width: 3, height: 8,
         background: lit ? '#ffcc44' : '#555',
-        borderRadius: 2,
-        marginTop: -2,
+        borderRadius: 2, marginTop: -2,
         boxShadow: lit ? '0 0 4px #ffcc44' : 'none',
         transition: 'background 0.4s',
       }} />
-
-      {/* Smoke */}
       {justBlown && (
         <div style={{
-          position: 'absolute',
-          bottom: 8,
-          width: 6,
-          height: 30,
+          position: 'absolute', bottom: 8, width: 6, height: 30,
           background: 'linear-gradient(to top, rgba(200,200,200,0.5), transparent)',
-          borderRadius: 4,
-          animation: 'smokeRise 1.2s ease-out forwards',
+          borderRadius: 4, animation: 'smokeRise 1.2s ease-out forwards',
           pointerEvents: 'none',
         }} />
       )}
@@ -82,6 +162,7 @@ function Flame({ lit, justBlown, onClick }: FlameProps) {
   );
 }
 
+// ── Digit with flame ─────────────────────────────────────────────────────────
 interface DigitWithFlameProps {
   flameIndex: number;
   lit: boolean;
@@ -92,31 +173,19 @@ interface DigitWithFlameProps {
 function DigitWithFlame({ flameIndex, lit, justBlown, onBlow }: DigitWithFlameProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-      {/* Flame sits at the immediate top-center head of the digit */}
-      <Flame
-        lit={lit}
-        justBlown={justBlown}
-        onClick={() => onBlow(flameIndex)}
-      />
-
-      {/* The digit "2" */}
+      <Flame lit={lit} justBlown={justBlown} onClick={() => onBlow(flameIndex)} />
       <div style={{
-        fontSize: 'clamp(80px, 18vw, 130px)',
-        fontWeight: 900,
-        lineHeight: 1,
+        fontSize: 'clamp(80px, 18vw, 130px)', fontWeight: 900, lineHeight: 1,
         background: lit
           ? 'linear-gradient(160deg, #ffe566 0%, #ffaa00 50%, #ff6600 100%)'
           : 'linear-gradient(160deg, #888 0%, #555 100%)',
-        WebkitBackgroundClip: 'text',
-        backgroundClip: 'text',
+        WebkitBackgroundClip: 'text', backgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         filter: lit
           ? 'drop-shadow(0 0 18px rgba(255,180,0,0.6))'
           : 'drop-shadow(0 0 6px rgba(0,0,0,0.5))',
         transition: 'filter 0.5s ease',
-        fontFamily: 'Georgia, serif',
-        userSelect: 'none',
-        letterSpacing: '-0.02em',
+        fontFamily: 'Georgia, serif', userSelect: 'none', letterSpacing: '-0.02em',
       }}>
         2
       </div>
@@ -124,18 +193,22 @@ function DigitWithFlame({ flameIndex, lit, justBlown, onBlow }: DigitWithFlamePr
   );
 }
 
+// ── Main component ───────────────────────────────────────────────────────────
 interface Props {
   onDone: () => void;
 }
 
 export default function BirthdayCake({ onDone }: Props) {
-  const [litFlames, setLitFlames]   = useState<boolean[]>(Array(TOTAL_FLAMES).fill(true));
-  const [justBlown, setJustBlown]   = useState<boolean[]>(Array(TOTAL_FLAMES).fill(false));
-  const [micActive, setMicActive]   = useState(false);
-  const [micError, setMicError]     = useState(false);
-  const [allOut, setAllOut]         = useState(false);
-  const [showFinal, setShowFinal]   = useState(false);
-  const [showFireworks, setShowFireworks] = useState(false);
+  const [phase, setPhase]             = useState<Phase>('teddy');
+  const [teddyBounce, setTeddyBounce] = useState(false);
+
+  const [litFlames, setLitFlames]           = useState<boolean[]>(Array(TOTAL_FLAMES).fill(true));
+  const [justBlown, setJustBlown]           = useState<boolean[]>(Array(TOTAL_FLAMES).fill(false));
+  const [micActive, setMicActive]           = useState(false);
+  const [micError, setMicError]             = useState(false);
+  const [allOut, setAllOut]                 = useState(false);
+  const [showFinal, setShowFinal]           = useState(false);
+  const [showFireworks, setShowFireworks]   = useState(false);
 
   const streamRef   = useRef<MediaStream | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -146,6 +219,16 @@ export default function BirthdayCake({ onDone }: Props) {
   litRef.current    = litFlames;
 
   const litCount = litFlames.filter(Boolean).length;
+
+  // Teddy click → petal blast → cake
+  const handleTeddyClick = () => {
+    setTeddyBounce(true);
+    setTimeout(() => setPhase('petals'), 300);
+  };
+
+  const handlePetalsDone = useCallback(() => {
+    setPhase('cake');
+  }, []);
 
   const extinguishNext = useCallback(() => {
     const idx = litRef.current.findIndex(v => v);
@@ -183,7 +266,6 @@ export default function BirthdayCake({ onDone }: Props) {
       source.connect(analyser);
       analyserRef.current = analyser;
       setMicActive(true);
-
       const buf = new Float32Array(analyser.fftSize);
       const detect = () => {
         analyser.getFloatTimeDomainData(buf);
@@ -257,6 +339,163 @@ export default function BirthdayCake({ onDone }: Props) {
     <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden" style={{ background: '#050510' }}>
       <Starfield />
 
+      {/* ── Petal blast overlay ── */}
+      {phase === 'petals' && <PetalBlast onDone={handlePetalsDone} />}
+
+      {/* ── Teddy screen ── */}
+      {phase === 'teddy' && (
+        <div
+          className="relative z-10 flex flex-col items-center"
+          style={{ textAlign: 'center', userSelect: 'none' }}
+        >
+          {/* Same shimmer style as "Happy 22nd Birthday" header */}
+          <div
+            className="shimmer-text"
+            style={{
+              fontSize: 'clamp(1.4rem, 5vw, 2.2rem)',
+              fontWeight: 800,
+              lineHeight: 1.2,
+              marginBottom: '2.2rem',
+            }}
+          >
+            Hey Anuska, click me! 🎀
+          </div>
+
+          {/* Teddy */}
+          <div
+            onClick={handleTeddyClick}
+            style={{
+              fontSize: 'clamp(90px, 22vw, 160px)',
+              cursor: 'pointer',
+              display: 'inline-block',
+              animation: teddyBounce
+                ? 'bubblePop 0.3s ease forwards'
+                : 'teddyFloat 3s ease-in-out infinite',
+              filter: 'drop-shadow(0 0 30px rgba(255,121,198,0.5))',
+              transition: 'transform 0.1s ease',
+              lineHeight: 1,
+            }}
+          >
+            🧸
+          </div>
+
+          <div style={{
+            marginTop: '1.5rem',
+            color: 'rgba(255,255,255,0.35)',
+            fontSize: '0.8rem',
+            letterSpacing: '0.06em',
+          }}>
+            tap the teddy ✨
+          </div>
+        </div>
+      )}
+
+      {/* ── Cake + candles ── */}
+      {phase === 'cake' && !showFinal && (
+        <div className="relative z-10 flex flex-col items-center" style={{ userSelect: 'none' }}>
+          <div style={{ textAlign: 'center', marginBottom: '1.2rem' }}>
+            <div className="shimmer-text" style={{ fontSize: 'clamp(1.4rem, 5vw, 2.2rem)', fontWeight: 800, lineHeight: 1.2 }}>
+              Happy 22nd Birthday 🎉
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.82rem', marginTop: '0.4rem' }}>
+              {micActive
+                ? `Blow into your mic to put out the flames! (${litCount} left 🔥)`
+                : micError
+                  ? `Click each flame to blow it out! (${litCount} left 🔥)`
+                  : `Blow out the flames to reveal your surprise 🔥`}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{
+              display: 'flex', gap: 'clamp(12px, 5vw, 36px)',
+              alignItems: 'flex-end', marginBottom: -4,
+              position: 'relative', zIndex: 2,
+            }}>
+              {[0, 1].map(i => (
+                <DigitWithFlame key={i} flameIndex={i} lit={litFlames[i]} justBlown={justBlown[i]} onBlow={handleBlow} />
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              {/* Top tier */}
+              <div style={{
+                width: 'clamp(140px, 32vw, 200px)', height: 54,
+                background: 'linear-gradient(to bottom, #ff79c6, #c94fa0)',
+                borderRadius: '10px 10px 0 0', position: 'relative', overflow: 'hidden',
+                boxShadow: '0 0 22px rgba(255,121,198,0.45)',
+              }}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} style={{ position: 'absolute', top: -4, left: `${10 + i * 18}%`, width: '8%', height: 18, background: 'rgba(255,255,255,0.7)', borderRadius: '0 0 50% 50%' }} />
+                ))}
+                <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, textAlign: 'center', fontSize: '1rem' }}>🌸 🌸</div>
+              </div>
+
+              {/* Middle tier */}
+              <div style={{
+                width: 'clamp(210px, 48vw, 300px)', height: 66,
+                background: 'linear-gradient(to bottom, #bd93f9, #8b5cf6)',
+                position: 'relative', overflow: 'hidden',
+                boxShadow: '0 0 20px rgba(189,147,249,0.38)',
+              }}>
+                {Array.from({ length: 7 }).map((_, i) => (
+                  <div key={i} style={{ position: 'absolute', top: -4, left: `${4 + i * 14}%`, width: '6%', height: 16, background: 'rgba(255,255,255,0.65)', borderRadius: '0 0 50% 50%' }} />
+                ))}
+                <div style={{ position: 'absolute', bottom: 10, left: 0, right: 0, textAlign: 'center', fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', letterSpacing: '0.08em', fontWeight: 600 }}>
+                  22 years of being amazing ✨
+                </div>
+              </div>
+
+              {/* Bottom tier */}
+              <div style={{
+                width: 'clamp(290px, 66vw, 420px)', height: 80,
+                background: 'linear-gradient(to bottom, #8be9fd, #5bc8e8)',
+                borderRadius: '0 0 14px 14px', position: 'relative', overflow: 'hidden',
+                boxShadow: '0 8px 28px rgba(139,233,253,0.3)',
+              }}>
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} style={{ position: 'absolute', top: -4, left: `${2 + i * 10}%`, width: '5%', height: 14, background: 'rgba(255,255,255,0.6)', borderRadius: '0 0 50% 50%' }} />
+                ))}
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div key={i} style={{ position: 'absolute', width: 11, height: 11, borderRadius: '50%', background: 'rgba(255,255,255,0.45)', top: 28 + (i % 2) * 22, left: `${7 + i * 10}%` }} />
+                ))}
+              </div>
+
+              {/* Cake board */}
+              <div style={{ width: 'clamp(310px, 72vw, 450px)', height: 14, background: 'linear-gradient(to bottom, #d4a017, #a07800)', borderRadius: 4, boxShadow: '0 4px 14px rgba(0,0,0,0.45)' }} />
+            </div>
+          </div>
+
+          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+            {!micActive && !micError && (
+              <button onClick={startMic} className="glow-button" style={{ padding: '12px 28px', fontSize: '0.95rem' }}>
+                🎤 Enable Microphone to Blow
+              </button>
+            )}
+            {micActive && (
+              <div className="glass" style={{ padding: '8px 18px', fontSize: '0.8rem', color: '#8be9fd', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ animation: 'heartbeat 0.8s ease-in-out infinite' }}>🎤</span>
+                Listening… take a deep breath and blow!
+              </div>
+            )}
+            {micError && (
+              <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
+                Mic unavailable — tap each flame to blow it out 🔥
+              </div>
+            )}
+            {!micActive && (
+              <button
+                onClick={() => { handleBlow(0); setTimeout(() => handleBlow(1), 600); }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: 'rgba(255,255,255,0.25)', textDecoration: 'underline' }}
+              >
+                or blow all out at once
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Fireworks canvas */}
       {showFireworks && (
         <canvas ref={fwCanvasRef} className="fixed inset-0 w-full h-full" style={{ zIndex: 5 }} />
       )}
@@ -280,169 +519,6 @@ export default function BirthdayCake({ onDone }: Props) {
           <button onClick={onDone} className="glow-button" style={{ marginTop: '2rem' }}>
             See your birthday surprise →
           </button>
-        </div>
-      )}
-
-      {/* Main cake scene */}
-      {!showFinal && (
-        <div className="relative z-10 flex flex-col items-center" style={{ userSelect: 'none' }}>
-
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '1.2rem' }}>
-            <div className="shimmer-text" style={{ fontSize: 'clamp(1.4rem, 5vw, 2.2rem)', fontWeight: 800, lineHeight: 1.2 }}>
-              Happy 22nd Birthday 🎉
-            </div>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.82rem', marginTop: '0.4rem' }}>
-              {micActive
-                ? `Blow into your mic to put out the flames! (${litCount} left 🔥)`
-                : micError
-                  ? `Click each flame to blow it out! (${litCount} left 🔥)`
-                  : `Blow out the flames to reveal your surprise 🔥`}
-            </div>
-          </div>
-
-          {/* "22" digits with flames on top of pyramid cake */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-
-            {/* Digits row — sits above cake */}
-            <div style={{
-              display: 'flex',
-              gap: 'clamp(12px, 5vw, 36px)',
-              alignItems: 'flex-end',
-              marginBottom: -4,
-              position: 'relative',
-              zIndex: 2,
-            }}>
-              {[0, 1].map(i => (
-                <DigitWithFlame
-                  key={i}
-                  flameIndex={i}
-                  lit={litFlames[i]}
-                  justBlown={justBlown[i]}
-                  onBlow={handleBlow}
-                />
-              ))}
-            </div>
-
-            {/* Pyramid-style cake — each tier wider than the one above */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-
-              {/* Top tier — narrowest */}
-              <div style={{
-                width: 'clamp(140px, 32vw, 200px)',
-                height: 54,
-                background: 'linear-gradient(to bottom, #ff79c6, #c94fa0)',
-                borderRadius: '10px 10px 0 0',
-                position: 'relative',
-                overflow: 'hidden',
-                boxShadow: '0 0 22px rgba(255,121,198,0.45)',
-              }}>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} style={{
-                    position: 'absolute', top: -4,
-                    left: `${10 + i * 18}%`, width: '8%', height: 18,
-                    background: 'rgba(255,255,255,0.7)', borderRadius: '0 0 50% 50%',
-                  }} />
-                ))}
-                <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, textAlign: 'center', fontSize: '1rem' }}>
-                  🌸 🌸
-                </div>
-              </div>
-
-              {/* Middle tier — medium */}
-              <div style={{
-                width: 'clamp(210px, 48vw, 300px)',
-                height: 66,
-                background: 'linear-gradient(to bottom, #bd93f9, #8b5cf6)',
-                position: 'relative',
-                overflow: 'hidden',
-                boxShadow: '0 0 20px rgba(189,147,249,0.38)',
-              }}>
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <div key={i} style={{
-                    position: 'absolute', top: -4,
-                    left: `${4 + i * 14}%`, width: '6%', height: 16,
-                    background: 'rgba(255,255,255,0.65)', borderRadius: '0 0 50% 50%',
-                  }} />
-                ))}
-                <div style={{
-                  position: 'absolute', bottom: 10, left: 0, right: 0,
-                  textAlign: 'center', fontSize: '0.85rem',
-                  color: 'rgba(255,255,255,0.85)', letterSpacing: '0.08em', fontWeight: 600,
-                }}>
-                  22 years of being amazing ✨
-                </div>
-              </div>
-
-              {/* Bottom tier — widest */}
-              <div style={{
-                width: 'clamp(290px, 66vw, 420px)',
-                height: 80,
-                background: 'linear-gradient(to bottom, #8be9fd, #5bc8e8)',
-                borderRadius: '0 0 14px 14px',
-                position: 'relative',
-                overflow: 'hidden',
-                boxShadow: '0 8px 28px rgba(139,233,253,0.3)',
-              }}>
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} style={{
-                    position: 'absolute', top: -4,
-                    left: `${2 + i * 10}%`, width: '5%', height: 14,
-                    background: 'rgba(255,255,255,0.6)', borderRadius: '0 0 50% 50%',
-                  }} />
-                ))}
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <div key={i} style={{
-                    position: 'absolute',
-                    width: 11, height: 11, borderRadius: '50%',
-                    background: 'rgba(255,255,255,0.45)',
-                    top: 28 + (i % 2) * 22, left: `${7 + i * 10}%`,
-                  }} />
-                ))}
-              </div>
-
-              {/* Cake board */}
-              <div style={{
-                width: 'clamp(310px, 72vw, 450px)',
-                height: 14,
-                background: 'linear-gradient(to bottom, #d4a017, #a07800)',
-                borderRadius: 4,
-                boxShadow: '0 4px 14px rgba(0,0,0,0.45)',
-              }} />
-            </div>
-          </div>
-
-          {/* Mic / instructions */}
-          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-            {!micActive && !micError && (
-              <button onClick={startMic} className="glow-button" style={{ padding: '12px 28px', fontSize: '0.95rem' }}>
-                🎤 Enable Microphone to Blow
-              </button>
-            )}
-            {micActive && (
-              <div className="glass" style={{ padding: '8px 18px', fontSize: '0.8rem', color: '#8be9fd', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ animation: 'heartbeat 0.8s ease-in-out infinite' }}>🎤</span>
-                Listening… take a deep breath and blow!
-              </div>
-            )}
-            {micError && (
-              <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
-                Mic unavailable — tap each flame to blow it out 🔥
-              </div>
-            )}
-            {!micActive && (
-              <button
-                onClick={() => { handleBlow(0); setTimeout(() => handleBlow(1), 600); }}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: '0.72rem', color: 'rgba(255,255,255,0.25)',
-                  textDecoration: 'underline',
-                }}
-              >
-                or blow all out at once
-              </button>
-            )}
-          </div>
         </div>
       )}
     </div>

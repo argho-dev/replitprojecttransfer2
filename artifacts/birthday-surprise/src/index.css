@@ -534,3 +534,10 @@ button, [role="button"] {
 .page-fade-in {
   animation: pageFadeIn 0.7s ease forwards;
 }
+
+/* ============ TEDDY FLOAT ============ */
+@keyframes teddyFloat {
+  0%   { transform: translateY(0px) rotate(-2deg); }
+  50%  { transform: translateY(-18px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(-2deg); }
+}
