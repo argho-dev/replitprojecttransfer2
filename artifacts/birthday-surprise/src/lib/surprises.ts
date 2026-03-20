@@ -86,8 +86,9 @@ export function isBirthdayEve(): boolean {
 export function isBirthdayFinalDay(): boolean {
   if (isForcedBirthday()) return true;
   const now = new Date();
-  const activation = new Date(2026, 2, 31, 0, 0, 0);
-  return now >= activation;
+  // March 31, 2026 at 12:00 AM IST = March 30, 2026 at 18:30 UTC (IST is UTC+5:30)
+  const activationIST = new Date(Date.UTC(2026, 2, 30, 18, 30, 0));
+  return now >= activationIST;
 }
 
 function dayKey(): string {
