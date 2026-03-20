@@ -68,7 +68,12 @@ export function getCountdownParts(): { days: number; hours: number; minutes: num
   return { days, hours, minutes, seconds };
 }
 
+function isForcedBirthday(): boolean {
+  return new URLSearchParams(window.location.search).get('forceBirthday') === '1';
+}
+
 export function isBirthday(): boolean {
+  if (isForcedBirthday()) return true;
   const now = new Date();
   return now.getMonth() === 2 && now.getDate() === 31;
 }
@@ -79,6 +84,7 @@ export function isBirthdayEve(): boolean {
 }
 
 export function isBirthdayFinalDay(): boolean {
+  if (isForcedBirthday()) return true;
   const now = new Date();
   const activation = new Date(2026, 2, 31, 0, 0, 0);
   return now >= activation;

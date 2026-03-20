@@ -34,8 +34,9 @@ export default function App() {
   };
 
   const handleContinue = () => {
-    if (isBirthday()) {
-      setScreen('cake');
+    if (isBirthdayFinalDay()) {
+      // Birthday: go through the scratch page first, then auto-navigate to cake after scratch
+      setScreen('surprise');
     } else if (isBirthdayEve()) {
       setScreen('cake');
     } else {
