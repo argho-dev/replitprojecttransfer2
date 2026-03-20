@@ -127,6 +127,20 @@ export default function BirthdayFinale() {
       )}
 
       {phase === 'gallery' && (
+        <style>{`
+          @keyframes prettyGlow {
+            0%  {color:#ff79c6;text-shadow:0 0 8px #ff79c6,0 0 22px #ff79c6}
+            17% {color:#ff9f43;text-shadow:0 0 8px #ff9f43,0 0 22px #ff9f43}
+            33% {color:#ffd700;text-shadow:0 0 8px #ffd700,0 0 22px #ffd700}
+            50% {color:#50fa7b;text-shadow:0 0 8px #50fa7b,0 0 22px #50fa7b}
+            67% {color:#8be9fd;text-shadow:0 0 8px #8be9fd,0 0 22px #8be9fd}
+            83% {color:#bd93f9;text-shadow:0 0 8px #bd93f9,0 0 22px #bd93f9}
+            100%{color:#ff79c6;text-shadow:0 0 8px #ff79c6,0 0 22px #ff79c6}
+          }
+        `}</style>
+      )}
+
+      {phase === 'gallery' && (
         <div
           style={{
             position: 'relative',
@@ -217,18 +231,20 @@ export default function BirthdayFinale() {
                   {/* Caption */}
                   <div
                     style={{
-                      fontSize: 'clamp(0.5rem, 1.1vw, 0.72rem)',
-                      color: '#333',
+                      fontSize: 'clamp(0.55rem, 1.2vw, 0.8rem)',
                       textAlign: 'center',
                       fontFamily: "'Georgia', serif",
                       fontStyle: 'italic',
+                      fontWeight: 700,
+                      letterSpacing: '0.04em',
                       lineHeight: 1.3,
                       padding: '0 4px',
                       flexShrink: 0,
                       marginTop: 4,
+                      animation: 'prettyGlow 3s linear infinite',
                     }}
                   >
-                    {p.msg}
+                    pretty she ✨
                   </div>
                 </div>
               </div>

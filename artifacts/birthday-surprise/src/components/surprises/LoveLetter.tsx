@@ -27,6 +27,15 @@ interface P { message: string; onReveal?: () => void }
 
 const POLAROID_KF = `
 @keyframes polaroidFloat{0%,100%{transform:translateY(0px)}50%{transform:translateY(-5px)}}
+@keyframes prettyGlow{
+  0%  {color:#ff79c6;text-shadow:0 0 8px #ff79c6,0 0 22px #ff79c6}
+  17% {color:#ff9f43;text-shadow:0 0 8px #ff9f43,0 0 22px #ff9f43}
+  33% {color:#ffd700;text-shadow:0 0 8px #ffd700,0 0 22px #ffd700}
+  50% {color:#50fa7b;text-shadow:0 0 8px #50fa7b,0 0 22px #50fa7b}
+  67% {color:#8be9fd;text-shadow:0 0 8px #8be9fd,0 0 22px #8be9fd}
+  83% {color:#bd93f9;text-shadow:0 0 8px #bd93f9,0 0 22px #bd93f9}
+  100%{color:#ff79c6;text-shadow:0 0 8px #ff79c6,0 0 22px #ff79c6}
+}
 `;
 
 export default function LoveLetter({ message, onReveal }: P) {
@@ -248,6 +257,19 @@ export default function LoveLetter({ message, onReveal }: P) {
               borderRadius: 2,
             }}
           />
+          <div style={{
+            textAlign: 'center',
+            paddingTop: 6,
+            paddingBottom: 2,
+            fontFamily: "'Georgia', serif",
+            fontStyle: 'italic',
+            fontWeight: 700,
+            fontSize: 'clamp(0.75rem, 2vw, 0.95rem)',
+            letterSpacing: '0.04em',
+            animation: 'prettyGlow 3s linear infinite',
+          }}>
+            pretty she ✨
+          </div>
         </div>
       </div>
 
