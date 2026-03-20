@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type BgMode =
   | 'petals'
@@ -533,7 +533,9 @@ interface DailyBackgroundProps {
 export default function DailyBackground({ mode: propMode }: DailyBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
-  const mode = propMode ?? getDailyBgMode();
+  // Compute mode exactly once per mount so it stays stable within a session
+  // but picks a fresh random effect on every page load
+  const [mode] = useState<BgMode>(() => propMode ?? getDailyBgMode());
 
   useEffect(() => {
     if (mode === 'aurora') return; // aurora is CSS only

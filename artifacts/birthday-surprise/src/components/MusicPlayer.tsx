@@ -34,7 +34,7 @@ function ScrollingText({ text, style }: { text: string; style?: React.CSSPropert
 }
 
 export default function MusicPlayer() {
-  const song: Song   = getDailySong();
+  const [song] = useState<Song>(() => getDailySong());
   const audioRef     = useRef<HTMLAudioElement>(null);
 
   const [playing,     setPlaying]     = useState(false);
