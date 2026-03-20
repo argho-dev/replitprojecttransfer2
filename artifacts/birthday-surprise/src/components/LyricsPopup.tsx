@@ -17,18 +17,18 @@ interface WordBurst {
 
 /* ─── Palette ────────────────────────────────────────────────── */
 const PALETTE = [
-  { color: '#c2185b', glowA: 'rgba(194,24,91,0.9)',   glowB: 'rgba(194,24,91,0.4)'   },
-  { color: '#7b1fa2', glowA: 'rgba(123,31,162,0.9)',  glowB: 'rgba(123,31,162,0.4)'  },
-  { color: '#1565c0', glowA: 'rgba(21,101,192,0.9)',  glowB: 'rgba(21,101,192,0.4)'  },
-  { color: '#00695c', glowA: 'rgba(0,105,92,0.9)',    glowB: 'rgba(0,105,92,0.4)'    },
-  { color: '#e65100', glowA: 'rgba(230,81,0,0.9)',    glowB: 'rgba(230,81,0,0.4)'    },
-  { color: '#880e4f', glowA: 'rgba(136,14,79,0.9)',   glowB: 'rgba(136,14,79,0.4)'   },
-  { color: '#4a148c', glowA: 'rgba(74,20,140,0.9)',   glowB: 'rgba(74,20,140,0.4)'   },
-  { color: '#bf360c', glowA: 'rgba(191,54,12,0.9)',   glowB: 'rgba(191,54,12,0.4)'   },
-  { color: '#1a237e', glowA: 'rgba(26,35,126,0.9)',   glowB: 'rgba(26,35,126,0.4)'   },
-  { color: '#006064', glowA: 'rgba(0,96,100,0.9)',    glowB: 'rgba(0,96,100,0.4)'    },
-  { color: '#4e342e', glowA: 'rgba(78,52,46,0.9)',    glowB: 'rgba(78,52,46,0.4)'    },
-  { color: '#1b5e20', glowA: 'rgba(27,94,32,0.9)',    glowB: 'rgba(27,94,32,0.4)'    },
+  { color: '#ff2d78', glowA: 'rgba(255,45,120,0.9)',  glowB: 'rgba(255,45,120,0.4)'  },
+  { color: '#bf5af2', glowA: 'rgba(191,90,242,0.9)',  glowB: 'rgba(191,90,242,0.4)'  },
+  { color: '#0a84ff', glowA: 'rgba(10,132,255,0.9)',  glowB: 'rgba(10,132,255,0.4)'  },
+  { color: '#ff9f0a', glowA: 'rgba(255,159,10,0.9)',  glowB: 'rgba(255,159,10,0.4)'  },
+  { color: '#30d158', glowA: 'rgba(48,209,88,0.9)',   glowB: 'rgba(48,209,88,0.4)'   },
+  { color: '#ff6b6b', glowA: 'rgba(255,107,107,0.9)', glowB: 'rgba(255,107,107,0.4)' },
+  { color: '#ffd60a', glowA: 'rgba(255,214,10,0.9)',  glowB: 'rgba(255,214,10,0.4)'  },
+  { color: '#64d2ff', glowA: 'rgba(100,210,255,0.9)', glowB: 'rgba(100,210,255,0.4)' },
+  { color: '#ff79c6', glowA: 'rgba(255,121,198,0.9)', glowB: 'rgba(255,121,198,0.4)' },
+  { color: '#bd93f9', glowA: 'rgba(189,147,249,0.9)', glowB: 'rgba(189,147,249,0.4)' },
+  { color: '#50fa7b', glowA: 'rgba(80,250,123,0.9)',  glowB: 'rgba(80,250,123,0.4)'  },
+  { color: '#ffb86c', glowA: 'rgba(255,184,108,0.9)', glowB: 'rgba(255,184,108,0.4)' },
 ];
 
 const SIZES  = [20, 22, 25, 28, 32, 36, 40];
