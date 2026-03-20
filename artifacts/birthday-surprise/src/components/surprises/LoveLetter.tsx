@@ -26,7 +26,7 @@ type Stage = 'envelope' | 'scratch' | 'revealed';
 interface P { message: string; onReveal?: () => void }
 
 const POLAROID_KF = `
-@keyframes polaroidFloat{0%,100%{transform:rotate(6deg) translateY(0px)}50%{transform:rotate(6deg) translateY(-6px)}}
+@keyframes polaroidFloat{0%,100%{transform:translateY(0px)}50%{transform:translateY(-5px)}}
 `;
 
 export default function LoveLetter({ message, onReveal }: P) {
@@ -219,31 +219,33 @@ export default function LoveLetter({ message, onReveal }: P) {
     }}>
       <style>{KF}{POLAROID_KF}</style>
 
-      {/* ── POLAROID (top-right corner) ── */}
+      {/* ── POLAROID (above music player, fixed) ── */}
       <div style={{
-        position: 'absolute',
-        top: 'clamp(12px, 3vw, 28px)',
-        right: 'clamp(12px, 4vw, 40px)',
-        zIndex: 20,
+        position: 'fixed',
+        bottom: 'calc(5rem + 183px)',
+        right: '1.25rem',
+        zIndex: 49,
         pointerEvents: 'none',
+        width: 'min(300px, 90vw)',
         animation: 'polaroidFloat 4s ease-in-out infinite',
       }}>
         <div style={{
           background: '#fff',
-          padding: '10px 10px 30px 10px',
-          boxShadow: '0 6px 24px rgba(0,0,0,0.18), 0 2px 8px rgba(200,80,150,0.15)',
+          padding: '10px 10px 32px 10px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.22), 0 2px 10px rgba(200,80,150,0.18)',
           borderRadius: 3,
-          width: 'clamp(90px, 14vw, 140px)',
+          width: '100%',
+          boxSizing: 'border-box',
         }}>
           <img
             src={randomPhoto}
             alt=""
             style={{
               width: '100%',
-              aspectRatio: '1 / 1',
+              aspectRatio: '4 / 3',
               objectFit: 'cover',
               display: 'block',
-              borderRadius: 1,
+              borderRadius: 2,
             }}
           />
         </div>
