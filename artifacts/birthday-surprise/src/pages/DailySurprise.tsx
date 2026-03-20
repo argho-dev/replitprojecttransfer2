@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, lazy, Suspense, useCallback } from 'react'
 import { gsap } from 'gsap';
 import Starfield from '../components/Starfield';
 import MusicPlayer from '../components/MusicPlayer';
+import DailyBackground from '../components/DailyBackground';
 import {
   getCountdownParts,
   getTodayMessages,
@@ -303,6 +304,7 @@ export default function DailySurprise() {
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: '#050510' }}>
+      <DailyBackground />
       <Starfield />
 
       {/* Header */}

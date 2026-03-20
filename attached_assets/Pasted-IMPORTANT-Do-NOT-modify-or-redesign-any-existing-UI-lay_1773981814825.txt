@@ -1,0 +1,109 @@
+IMPORTANT: Do NOT modify or redesign any existing UI, layout, or features of the web app. Everything currently working should remain exactly as it is.
+
+Only implement the following changes strictly:
+
+---
+
+### 1. Random Background on Every Reload (Message Page Only)
+
+* Target ONLY the "message page" (where daily messages are shown)
+
+* Every time the page is opened or refreshed:
+
+  * Background should change randomly
+  * Randomization should include:
+
+    * colors (gradients)
+    * animation styles (particles, glow, emoji rain, etc.)
+
+* Do NOT affect other pages
+
+* Do NOT keep background static
+
+---
+
+### 2. Daily New Messages + Songs (No Repetition)
+
+* Every day:
+
+  * Show NEW messages
+  * Play a NEW song
+
+Rules:
+
+* Messages must NEVER repeat
+
+* Songs must NOT repeat (no repetition at all)
+
+* Use localStorage to track used messages and songs
+
+* Each day should feel completely new
+
+---
+
+### 3. No Repetition Logic (Strict)
+
+* Once a song is played → never play it again
+
+* Once a message is shown → never show it again
+
+* If list ends:
+
+  * gracefully stop or reuse only after full cycle (but prefer no repeat)
+
+---
+
+### 4. Birthday Special Event (March 31st, 12:00 AM)
+
+At EXACT midnight:
+
+Replace the message section with a SPECIAL POPUP:
+
+Step 1:
+
+* Show a birthday cake popup 🎂
+* Text: **"Happy 22nd Birthday 🎉"**
+
+Step 2:
+
+* Enable microphone interaction:
+
+  * When user blows into mic → candles get blown out
+
+Step 3:
+
+* After candles go off:
+
+  * Show second popup message:
+    **"You are very very precious and always stay happy. Happy Birthday 💛"**
+
+Important:
+
+* This must ONLY happen on March 31st (after 12:00 AM)
+* It must NOT appear on any other day
+
+---
+
+### 5. Behavior Consistency
+
+* Background randomization = every reload
+* Messages + songs = change daily (based on date)
+* Birthday event = only on exact date/time
+
+---
+
+### FINAL RULE:
+
+Do NOT:
+
+* change layout
+* change styling of existing UI
+* remove anything
+* redesign anything
+
+Only ADD the above logic cleanly.
+
+---
+
+Goal:
+Enhance experience without breaking anything existing.

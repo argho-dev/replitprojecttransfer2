@@ -286,10 +286,10 @@ export default function BirthdayCake({ onDone }: Props) {
             filter: 'drop-shadow(0 0 20px rgba(255,121,198,0.5))',
             animation: 'bubblePop 0.7s ease forwards',
           }}>
-            Happy Birthday!! 🎂
+            Happy 22nd Birthday 🎉
           </div>
           <div style={{ fontSize: 'clamp(1rem, 4vw, 1.4rem)', color: '#bd93f9', marginTop: '1rem', opacity: 0.9 }}>
-            You blew them all out! 🎉 Make a wish ✨
+            You are very very precious and always stay happy. Happy Birthday 💛
           </div>
           <button
             onClick={onDone}
@@ -311,7 +311,7 @@ export default function BirthdayCake({ onDone }: Props) {
               className="shimmer-text"
               style={{ fontSize: 'clamp(1.4rem, 5vw, 2.2rem)', fontWeight: 800, lineHeight: 1.2 }}
             >
-              Happy Birthday!! 🎂
+              Happy 22nd Birthday 🎉
             </div>
             <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem', marginTop: '0.4rem' }}>
               {micActive

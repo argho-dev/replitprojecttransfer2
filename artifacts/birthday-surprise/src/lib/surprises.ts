@@ -108,26 +108,48 @@ export function getTodaySurpriseIndex(): number {
   return pick;
 }
 
+/**
+ * Returns 2 messages for today.
+ * - Stable within a day (same messages all day).
+ * - Strict no-repeat: once a message is shown it is never shown again
+ *   until all 20 have been used (then cycles).
+ */
 export function getTodayMessages(): string[] {
   if (isBirthday()) return BIRTHDAY_MESSAGES;
 
-  // Pick 2 fresh messages on every call, using history to avoid recent repeats
-  const seenRaw = localStorage.getItem('bday_seenMsgs');
-  let seen: number[] = seenRaw ? JSON.parse(seenRaw) : [];
+  const key = dayKey();
 
-  // Reset seen list when most messages have been used
-  if (seen.length >= PERSONAL_MESSAGES.length - 2) seen = [];
+  // Return today's cached messages if already chosen (stable within a day)
+  const storedDate = localStorage.getItem('bday_msgDate');
+  const storedMsgs = localStorage.getItem('bday_msgTexts');
+  if (storedDate === key && storedMsgs) {
+    try {
+      const parsed = JSON.parse(storedMsgs);
+      if (Array.isArray(parsed) && parsed.length === 2) return parsed;
+    } catch { /* ignore */ }
+  }
 
-  const available = PERSONAL_MESSAGES.map((_, i) => i).filter(i => !seen.includes(i));
+  // Strict permanent no-repeat tracking
+  const usedRaw = localStorage.getItem('bday_msgsUsedPermanent');
+  let used: number[] = usedRaw ? JSON.parse(usedRaw) : [];
+
+  // Reset only when full cycle is complete
+  if (used.length >= PERSONAL_MESSAGES.length - 1) used = [];
+
+  const available = PERSONAL_MESSAGES.map((_, i) => i).filter(i => !used.includes(i));
 
   const pick1 = available[Math.floor(Math.random() * available.length)];
   const remaining = available.filter(i => i !== pick1);
-  const pick2 = remaining[Math.floor(Math.random() * remaining.length)] ?? pick1;
+  const pick2 = remaining.length > 0
+    ? remaining[Math.floor(Math.random() * remaining.length)]
+    : pick1;
 
   const msgs = [PERSONAL_MESSAGES[pick1], PERSONAL_MESSAGES[pick2]];
 
-  seen.push(pick1, pick2);
-  localStorage.setItem('bday_seenMsgs', JSON.stringify(seen));
+  used.push(pick1, pick2);
+  localStorage.setItem('bday_msgsUsedPermanent', JSON.stringify(used));
+  localStorage.setItem('bday_msgTexts', JSON.stringify(msgs));
+  localStorage.setItem('bday_msgDate',  key);
 
   return msgs;
 }

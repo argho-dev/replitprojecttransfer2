@@ -2,10 +2,9 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { isBirthday, isBirthdayEve } from './lib/surprises';
 import Entry from './pages/Entry';
 import AccessGate from './components/AccessGate';
-import DailyBackground from './components/DailyBackground';
 
-const DailySurprise = lazy(() => import('./pages/DailySurprise'));
-const BirthdayCake  = lazy(() => import('./components/BirthdayCake'));
+const DailySurprise  = lazy(() => import('./pages/DailySurprise'));
+const BirthdayCake   = lazy(() => import('./components/BirthdayCake'));
 const BirthdayFinale = lazy(() => import('./components/BirthdayFinale'));
 
 type Screen = 'gate' | 'entry' | 'surprise' | 'cake' | 'finale';
@@ -29,7 +28,8 @@ export default function App() {
 
   const handleContinue = () => {
     if (isBirthday()) {
-      setScreen('finale');
+      // Birthday: go through the interactive cake first, then finale
+      setScreen('cake');
     } else if (isBirthdayEve()) {
       setScreen('cake');
     } else {
@@ -47,9 +47,6 @@ export default function App() {
 
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ background: '#000' }}>
-      {/* Daily animated background layer — visible on all screens */}
-      {screen !== 'gate' && <DailyBackground />}
-
       {screen === 'gate' && (
         <AccessGate onGranted={handleAccessGranted} />
       )}
