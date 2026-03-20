@@ -80,9 +80,9 @@ export default function LyricsPopup({ playing, song }: Props) {
       setBubbles(prev => [...prev.slice(-7), bubble]);
       setOpacities(prev => ({ ...prev, [id]: 0 }));
 
-      const lifetime = 2400 + Math.random() * 1400;
-      const fadeIn   = 420;
-      const fadeOut  = 500;
+      const lifetime = 4200 + Math.random() * 2000;
+      const fadeIn   = 600;
+      const fadeOut  = 700;
 
       addTimeout(() => {
         if (!activeRef.current) return;
@@ -99,8 +99,8 @@ export default function LyricsPopup({ playing, song }: Props) {
         setOpacities(prev => { const c = { ...prev }; delete c[id]; return c; });
       }, lifetime + 100);
 
-      /* next spawn: 1.5 – 2.8 s */
-      addTimeout(spawnNext, 1500 + Math.random() * 1300);
+      /* next spawn: 3.5 – 5.5 s — slow, relaxed pacing */
+      addTimeout(spawnNext, 3500 + Math.random() * 2000);
     };
 
     spawnNext();
@@ -137,37 +137,20 @@ export default function LyricsPopup({ playing, song }: Props) {
               opacity,
               transition: 'opacity 0.45s ease, transform 2.8s ease',
 
-              /* text */
-              fontSize:     `${b.fontSize}rem`,
-              fontStyle:    'italic',
-              fontWeight:   600,
-              color:        '#fff',
+              fontSize:      `${b.fontSize}rem`,
+              fontStyle:     'italic',
+              fontWeight:    600,
+              color:         '#fff',
               letterSpacing: '0.04em',
-              whiteSpace:   'nowrap',
-              userSelect:   'none',
+              whiteSpace:    'nowrap',
+              userSelect:    'none',
 
-              /*
-               * Pill backdrop — guarantees readability on ANY background
-               * (dark, light, gradient, image)
-               */
-              background:   'rgba(0, 0, 0, 0.38)',
-              padding:      '5px 13px',
-              borderRadius: '999px',
-              backdropFilter: 'blur(6px)',
-              WebkitBackdropFilter: 'blur(6px)',
-              border: '1px solid rgba(255,255,255,0.12)',
-
-              /* glow on the text itself */
+              /* Multi-layer text glow — readable on any bg, no box */
               textShadow: [
-                '0 0 8px rgba(255,255,255,0.9)',
-                '0 0 18px rgba(255,121,198,0.75)',
-                '0 0 32px rgba(189,147,249,0.5)',
-              ].join(', '),
-
-              /* outer glow on the pill */
-              boxShadow: [
-                '0 0 12px rgba(255,121,198,0.25)',
-                '0 2px 8px rgba(0,0,0,0.35)',
+                '0 1px 3px rgba(0,0,0,0.9)',        // dark drop-shadow for contrast
+                '0 0 10px rgba(0,0,0,0.8)',          // dark halo
+                '0 0 18px rgba(255,121,198,0.85)',   // pink glow
+                '0 0 32px rgba(189,147,249,0.55)',   // purple outer glow
               ].join(', '),
             }}
           >
