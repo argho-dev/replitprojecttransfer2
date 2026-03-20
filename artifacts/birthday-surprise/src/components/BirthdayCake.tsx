@@ -7,7 +7,7 @@ const BLOW_RMS_THRESHOLD = 0.035;
 
 type Phase = 'teddy' | 'petals' | 'cake';
 
-// ── Petal blast canvas ───────────────────────────────────────────────────────
+// ── Petal blast canvas (fast geometric shapes — no emoji) ────────────────────
 function PetalBlast({ onDone }: { onDone: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -20,69 +20,91 @@ function PetalBlast({ onDone }: { onDone: () => void }) {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const symbols = ['🌸', '🌺', '🌹', '🌷', '🍀', '✿', '❀', '🌼'];
+    // Petal colors — pinks, reds, purples, yellows, greens
+    const colors = [
+      '#ff79c6','#ff5599','#ff99cc','#ffaadd',
+      '#bd93f9','#ff6eb4','#ffe066','#50fa7b',
+      '#ff4488','#cc44ff','#ffdd00','#88ffbb',
+    ];
 
     type Petal = {
       x: number; y: number;
       vx: number; vy: number;
-      size: number; rotation: number;
-      rotSpeed: number; life: number;
-      decay: number; symbol: string;
+      w: number; h: number;
+      rotation: number; rotSpeed: number;
+      life: number; decay: number;
+      color: string; shape: 'ellipse' | 'rect' | 'circle';
     };
 
     const petals: Petal[] = [];
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
 
-    // Burst 180 petals from center
-    for (let i = 0; i < 180; i++) {
-      const angle  = Math.random() * Math.PI * 2;
-      const speed  = 4 + Math.random() * 14;
+    // 200 petals — all pure geometry, no emoji, very fast
+    for (let i = 0; i < 200; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 6 + Math.random() * 18;
+      const shape = (['ellipse', 'rect', 'circle'] as const)[Math.floor(Math.random() * 3)];
       petals.push({
         x: cx, y: cy,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 3,
-        size: 18 + Math.random() * 28,
+        vy: Math.sin(angle) * speed - 4,
+        w: 8 + Math.random() * 18,
+        h: 5 + Math.random() * 12,
         rotation: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.18,
+        rotSpeed: (Math.random() - 0.5) * 0.22,
         life: 1,
-        decay: 0.008 + Math.random() * 0.008,
-        symbol: symbols[Math.floor(Math.random() * symbols.length)],
+        decay: 0.012 + Math.random() * 0.01,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        shape,
       });
     }
 
     let raf: number;
+    let flashLife = 1;
+
     const loop = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Soft white flash that fades
-      const flashAlpha = Math.max(0, petals[0]?.life ?? 0) * 0.35;
-      ctx.fillStyle = `rgba(255,255,255,${flashAlpha})`;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Fast white flash
+      if (flashLife > 0) {
+        ctx.fillStyle = `rgba(255,255,255,${flashLife * 0.55})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        flashLife -= 0.06;
+      }
 
       let alive = 0;
       for (const p of petals) {
         if (p.life <= 0) continue;
         alive++;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.22;           // gravity
-        p.vx *= 0.98;
+        p.x  += p.vx;
+        p.y  += p.vy;
+        p.vy += 0.28;
+        p.vx *= 0.985;
         p.rotation += p.rotSpeed;
-        p.life -= p.decay;
+        p.life     -= p.decay;
 
         ctx.save();
         ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle   = p.color;
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rotation);
-        ctx.font = `${p.size}px serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(p.symbol, 0, 0);
+
+        if (p.shape === 'ellipse') {
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.w / 2, p.h / 2, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (p.shape === 'rect') {
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.h / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
         ctx.restore();
       }
 
-      if (alive > 0) {
+      if (alive > 0 || flashLife > 0) {
         raf = requestAnimationFrame(loop);
       } else {
         onDone();
@@ -172,23 +194,36 @@ interface DigitWithFlameProps {
 
 function DigitWithFlame({ flameIndex, lit, justBlown, onBlow }: DigitWithFlameProps) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative',
+      opacity: lit ? 1 : 0,
+      transform: lit ? 'scale(1)' : 'scale(0.4)',
+      transition: 'opacity 0.5s ease, transform 0.5s ease',
+      pointerEvents: lit ? 'auto' : 'none',
+    }}>
       <Flame lit={lit} justBlown={justBlown} onClick={() => onBlow(flameIndex)} />
       <div style={{
         fontSize: 'clamp(80px, 18vw, 130px)', fontWeight: 900, lineHeight: 1,
-        background: lit
-          ? 'linear-gradient(160deg, #ffe566 0%, #ffaa00 50%, #ff6600 100%)'
-          : 'linear-gradient(160deg, #888 0%, #555 100%)',
+        background: 'linear-gradient(160deg, #ffe566 0%, #ffaa00 50%, #ff6600 100%)',
         WebkitBackgroundClip: 'text', backgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
-        filter: lit
-          ? 'drop-shadow(0 0 18px rgba(255,180,0,0.6))'
-          : 'drop-shadow(0 0 6px rgba(0,0,0,0.5))',
-        transition: 'filter 0.5s ease',
+        filter: 'drop-shadow(0 0 18px rgba(255,180,0,0.6))',
         fontFamily: 'Georgia, serif', userSelect: 'none', letterSpacing: '-0.02em',
       }}>
         2
       </div>
+      {/* Sparkle burst when blown */}
+      {justBlown && (
+        <div style={{
+          position: 'absolute', top: '30%', left: '50%',
+          transform: 'translate(-50%, -50%)',
+          fontSize: 'clamp(28px, 6vw, 44px)',
+          animation: 'bubblePop 0.5s ease forwards',
+          pointerEvents: 'none',
+        }}>
+          ✨
+        </div>
+      )}
     </div>
   );
 }
