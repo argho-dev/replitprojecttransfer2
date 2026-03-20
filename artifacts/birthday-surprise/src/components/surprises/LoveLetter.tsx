@@ -1,5 +1,13 @@
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useState, useRef, useLayoutEffect, useMemo } from 'react';
 import { gsap } from 'gsap';
+import img1 from '@assets/image1_1774035362435.jpeg';
+import img2 from '@assets/image2_1774035362433.jpeg';
+import img3 from '@assets/image3_1774035362434.jpeg';
+import img4 from '@assets/image4_1774035362434.jpeg';
+import img5 from '@assets/image5_1774035580673.jpeg';
+import img6 from '@assets/image6_1774035362433.jpeg';
+
+const HER_PHOTOS = [img1, img2, img3, img4, img5, img6];
 
 const KF = `
 @keyframes envelopeBob{0%,100%{transform:translateY(0) rotate(-3deg) scale(1)}50%{transform:translateY(-18px) rotate(4deg) scale(1.06)}}
@@ -17,9 +25,15 @@ const PETALS = Array.from({ length: 18 }, (_, i) => ({
 type Stage = 'envelope' | 'scratch' | 'revealed';
 interface P { message: string; onReveal?: () => void }
 
+const POLAROID_KF = `
+@keyframes polaroidFloat{0%,100%{transform:rotate(6deg) translateY(0px)}50%{transform:rotate(6deg) translateY(-6px)}}
+`;
+
 export default function LoveLetter({ message, onReveal }: P) {
   const [stage, setStage]           = useState<Stage>('envelope');
   const [scratchPct, setScratchPct] = useState(0);
+
+  const randomPhoto = useMemo(() => HER_PHOTOS[Math.floor(Math.random() * HER_PHOTOS.length)], []);
 
   const envelopeRef = useRef<HTMLDivElement>(null);
   const cardRef     = useRef<HTMLDivElement>(null);   // the letter card
@@ -203,7 +217,37 @@ export default function LoveLetter({ message, onReveal }: P) {
       background: 'linear-gradient(155deg,#fbcfe8 0%,#fce7f3 35%,#f5d0fe 65%,#ede9fe 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
-      <style>{KF}</style>
+      <style>{KF}{POLAROID_KF}</style>
+
+      {/* ── POLAROID (top-right corner) ── */}
+      <div style={{
+        position: 'absolute',
+        top: 'clamp(12px, 3vw, 28px)',
+        right: 'clamp(12px, 4vw, 40px)',
+        zIndex: 20,
+        pointerEvents: 'none',
+        animation: 'polaroidFloat 4s ease-in-out infinite',
+      }}>
+        <div style={{
+          background: '#fff',
+          padding: '10px 10px 30px 10px',
+          boxShadow: '0 6px 24px rgba(0,0,0,0.18), 0 2px 8px rgba(200,80,150,0.15)',
+          borderRadius: 3,
+          width: 'clamp(90px, 14vw, 140px)',
+        }}>
+          <img
+            src={randomPhoto}
+            alt=""
+            style={{
+              width: '100%',
+              aspectRatio: '1 / 1',
+              objectFit: 'cover',
+              display: 'block',
+              borderRadius: 1,
+            }}
+          />
+        </div>
+      </div>
 
       {PETALS.map((p, i) => (
         <div key={i} style={{
