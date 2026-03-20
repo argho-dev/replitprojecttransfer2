@@ -1,199 +1,242 @@
 import { useEffect, useRef, useState } from 'react';
-import { gsap } from 'gsap';
 import { spawnConfetti } from './ConfettiEffect';
-import { CoupleBearSVG } from './BearCharacter';
 
-interface FWParticle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  color: string;
-  life: number;
-  maxLife: number;
-  r: number;
-}
-
-interface Firework {
-  x: number;
-  y: number;
-  particles: FWParticle[];
-}
+const POLAROIDS = [
+  {
+    msg: 'Every moment with you is a blessing 💛',
+    bg: 'linear-gradient(135deg, #ffd6e7 0%, #ffb3c6 100%)',
+    rotate: '-3deg',
+  },
+  {
+    msg: 'Your smile lights up every room 🌸',
+    bg: 'linear-gradient(135deg, #c9b8ff 0%, #a78bfa 100%)',
+    rotate: '2deg',
+  },
+  {
+    msg: "Here's to all our beautiful memories \u2728",
+    bg: 'linear-gradient(135deg, #b5ead7 0%, #6ee7b7 100%)',
+    rotate: '-1.5deg',
+  },
+  {
+    msg: 'Wishing you endless happiness 🎂',
+    bg: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 100%)',
+    rotate: '2.5deg',
+  },
+  {
+    msg: 'You deserve the whole world and more 🌺',
+    bg: 'linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%)',
+    rotate: '-2deg',
+  },
+  {
+    msg: 'Happy 22nd — stay magical always 💖',
+    bg: 'linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%)',
+    rotate: '1.5deg',
+  },
+];
 
 export default function BirthdayFinale() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef<number>(0);
-  const fireworksRef = useRef<Firework[]>([]);
-  const [phase, setPhase] = useState<'black' | 'heartbeat' | 'name' | 'full'>('black');
-  const nameRef = useRef<HTMLDivElement>(null);
-  const messageRef = useRef<HTMLDivElement>(null);
+  const canvasRef  = useRef<HTMLCanvasElement>(null);
+  const animRef    = useRef<number>(0);
+  const fwInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [phase, setPhase]         = useState<'black' | 'heartbeat' | 'gallery'>('black');
+  const [visibleCards, setVisible] = useState<boolean[]>(Array(6).fill(false));
 
+  // Phase sequence
   useEffect(() => {
-    // Phase sequence
-    const t1 = setTimeout(() => setPhase('heartbeat'), 1000);
-    const t2 = setTimeout(() => setPhase('name'), 3000);
-    const t3 = setTimeout(() => {
-      setPhase('full');
+    const t1 = setTimeout(() => setPhase('heartbeat'), 800);
+    const t2 = setTimeout(() => {
+      setPhase('gallery');
       spawnConfetti(25);
-      spawnConfetti(50);
-      spawnConfetti(75);
-    }, 5500);
-
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+      setTimeout(() => spawnConfetti(50), 400);
+      setTimeout(() => spawnConfetti(75), 800);
+    }, 2800);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
+  // Stagger polaroid cards in
   useEffect(() => {
-    if (phase === 'name' && nameRef.current) {
-      gsap.fromTo(nameRef.current,
-        { opacity: 0, scale: 0.5, filter: 'blur(20px)' },
-        { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.5, ease: 'power2.out' }
-      );
-    }
-    if (phase === 'full' && messageRef.current) {
-      gsap.fromTo(messageRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 0.3 }
-      );
-    }
+    if (phase !== 'gallery') return;
+    POLAROIDS.forEach((_, i) => {
+      setTimeout(() => {
+        setVisible(prev => { const n = [...prev]; n[i] = true; return n; });
+      }, i * 150);
+    });
   }, [phase]);
 
+  // Fireworks canvas (runs during gallery)
   useEffect(() => {
-    if (phase !== 'full') return;
-
+    if (phase !== 'gallery') return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
-    canvas.width = window.innerWidth;
+    canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const COLORS = ['#ff79c6', '#bd93f9', '#8be9fd', '#50fa7b', '#ffb86c', '#f1fa8c', '#ff5555', '#ff92d0'];
+    type P = { x: number; y: number; vx: number; vy: number; color: string; life: number; maxLife: number; r: number };
+    type FW = { x: number; y: number; particles: P[] };
+    const fws: FW[] = [];
+    const COLORS = ['#ff79c6','#bd93f9','#8be9fd','#50fa7b','#ffb86c','#f1fa8c','#ff5555','#ff92d0'];
 
-    const launchFirework = () => {
+    const launch = () => {
       const ox = Math.random() * canvas.width;
-      const oy = Math.random() * canvas.height * 0.6;
-      const count = 80 + Math.floor(Math.random() * 40);
-      const fw: Firework = {
+      const oy = Math.random() * canvas.height * 0.5;
+      fws.push({
         x: ox, y: oy,
-        particles: Array.from({ length: count }, () => {
+        particles: Array.from({ length: 80 }, () => {
           const angle = Math.random() * Math.PI * 2;
-          const speed = Math.random() * 8 + 2;
-          return {
-            x: ox,
-            y: oy,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            color: COLORS[Math.floor(Math.random() * COLORS.length)],
-            life: 0,
-            maxLife: 60 + Math.floor(Math.random() * 40),
-            r: Math.random() * 2.5 + 1,
-          };
+          const speed = Math.random() * 7 + 2;
+          return { x: ox, y: oy, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, color: COLORS[Math.floor(Math.random()*COLORS.length)], life: 0, maxLife: 60+Math.floor(Math.random()*40), r: Math.random()*2.5+1 };
         }),
-      };
-      fireworksRef.current.push(fw);
+      });
     };
-
-    const fwInterval = setInterval(launchFirework, 800);
-    launchFirework(); launchFirework();
+    fwInterval.current = setInterval(launch, 900);
+    launch(); launch();
 
     const draw = () => {
-      ctx.fillStyle = 'rgba(0,0,0,0.15)';
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      fireworksRef.current.forEach(fw => {
+      fws.forEach(fw => {
         fw.particles.forEach(p => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.1;
-          p.vx *= 0.98;
-          p.vy *= 0.98;
-          p.life++;
+          p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.vx *= 0.98; p.vy *= 0.98; p.life++;
           const alpha = 1 - p.life / p.maxLife;
           if (alpha <= 0) return;
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r * alpha, 0, Math.PI * 2);
-          ctx.fillStyle = p.color + Math.round(alpha * 255).toString(16).padStart(2, '0');
+          ctx.arc(p.x, p.y, p.r * alpha, 0, Math.PI*2);
+          ctx.fillStyle = p.color + Math.round(alpha*255).toString(16).padStart(2,'0');
           ctx.fill();
         });
       });
-
-      fireworksRef.current = fireworksRef.current.filter(fw =>
-        fw.particles.some(p => p.life < p.maxLife)
-      );
-
+      fws.splice(0, fws.length, ...fws.filter(fw => fw.particles.some(p => p.life < p.maxLife)));
       animRef.current = requestAnimationFrame(draw);
     };
-
     draw();
-    return () => { clearInterval(fwInterval); cancelAnimationFrame(animRef.current); };
+
+    return () => {
+      if (fwInterval.current) clearInterval(fwInterval.current);
+      cancelAnimationFrame(animRef.current);
+    };
   }, [phase]);
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: '#000' }}>
-      {/* Fireworks canvas */}
-      {phase === 'full' && (
+    <div
+      className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden"
+      style={{ background: '#050510' }}
+    >
+      {/* Fireworks */}
+      {phase === 'gallery' && (
         <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }} />
       )}
 
-      {/* Heartbeat phase */}
+      {/* Red heart beat */}
       {phase === 'heartbeat' && (
-        <div className="z-10 text-8xl heartbeat" style={{ filter: 'drop-shadow(0 0 30px #ff2d78)' }}>
+        <div
+          className="z-10 heartbeat"
+          style={{
+            fontSize: 'clamp(80px, 20vw, 140px)',
+            filter: 'drop-shadow(0 0 40px #ff2d78) drop-shadow(0 0 80px #ff0050)',
+            lineHeight: 1,
+          }}
+        >
           ❤️
         </div>
       )}
 
-      {/* Name reveal */}
-      {(phase === 'name' || phase === 'full') && (
-        <div ref={nameRef} className="z-10 flex flex-col items-center gap-6 text-center px-4">
-          <div className="text-5xl mb-2">🎂✨🎂</div>
-          <h1
-            className="font-black"
+      {/* Polaroid gallery */}
+      {phase === 'gallery' && (
+        <div
+          className="relative z-10 flex flex-col items-center"
+          style={{ width: '100%', maxHeight: '100vh', overflowY: 'auto', padding: '1.5rem 1rem' }}
+        >
+          {/* Header */}
+          <div
+            className="shimmer-text"
             style={{
-              fontSize: 'clamp(2.5rem, 8vw, 6rem)',
-              background: 'linear-gradient(135deg, #ff79c6, #bd93f9, #8be9fd, #ff79c6)',
-              backgroundSize: '300% 300%',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              animation: 'shimmer 3s linear infinite, textGlow 2s ease-in-out infinite',
-              lineHeight: 1.2,
-              fontFamily: 'Georgia, serif',
+              fontSize: 'clamp(1.3rem, 4vw, 2rem)',
+              fontWeight: 800,
+              marginBottom: '1.5rem',
+              textAlign: 'center',
+              lineHeight: 1.3,
             }}
           >
-            Happy Birthday! ❤️
-          </h1>
-        </div>
-      )}
-
-      {/* Full finale */}
-      {phase === 'full' && (
-        <div ref={messageRef} className="z-10 flex flex-col items-center gap-6 mt-8 px-6 opacity-0">
-          <CoupleBearSVG size={180} />
-          
-          <div className="glass-card p-6 max-w-md text-center">
-            <p className="text-2xl font-light leading-relaxed mb-4" style={{ color: '#f8f8f2' }}>
-              Today is YOUR day. 🌟
-            </p>
-            <p className="text-base opacity-80 leading-relaxed mb-4">
-              I don't know where I stand in your life…
-              but you made a place in mine.
-            </p>
-            <p className="text-sm opacity-60 italic">
-              Wishing you every joy, every warmth, every beautiful moment
-              the world has to offer. You deserve it all.
-            </p>
+            Happy 22nd Birthday, Anuska 🎀
           </div>
 
-          <div 
-            className="text-4xl"
-            style={{ animation: 'glowPulse 1.5s ease-in-out infinite' }}
+          {/* 3-col × 2-row polaroid grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 'clamp(12px, 3vw, 28px)',
+              width: '100%',
+              maxWidth: 860,
+            }}
           >
-            💝 🌸 💝
+            {POLAROIDS.map((p, i) => (
+              <div
+                key={i}
+                style={{
+                  opacity:    visibleCards[i] ? 1 : 0,
+                  transform:  visibleCards[i]
+                    ? `rotate(${p.rotate}) scale(1)`
+                    : `rotate(${p.rotate}) scale(0.6) translateY(30px)`,
+                  transition: 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.34,1.56,0.64,1)',
+                }}
+              >
+                {/* Polaroid frame */}
+                <div
+                  style={{
+                    background: '#fff',
+                    borderRadius: 4,
+                    padding: '8px 8px 32px 8px',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    cursor: 'default',
+                  }}
+                >
+                  {/* Photo area — placeholder gradient */}
+                  <div
+                    style={{
+                      width: '100%',
+                      aspectRatio: '1 / 1',
+                      background: p.bg,
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {/* Replace this div with an <img> tag pointing to your photo */}
+                    <span style={{ fontSize: 'clamp(28px, 6vw, 48px)', opacity: 0.5 }}>📷</span>
+                  </div>
+
+                  {/* Message below photo */}
+                  <div
+                    style={{
+                      marginTop: 8,
+                      fontSize: 'clamp(0.58rem, 1.4vw, 0.75rem)',
+                      color: '#333',
+                      textAlign: 'center',
+                      fontFamily: "'Georgia', serif",
+                      fontStyle: 'italic',
+                      lineHeight: 1.4,
+                      padding: '0 4px',
+                    }}
+                  >
+                    {p.msg}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
+          {/* Bottom celebrate button */}
           <button
             className="glow-button"
+            style={{ marginTop: '1.8rem' }}
             onClick={() => { spawnConfetti(25); spawnConfetti(50); spawnConfetti(75); }}
           >
             Celebrate! 🎊
