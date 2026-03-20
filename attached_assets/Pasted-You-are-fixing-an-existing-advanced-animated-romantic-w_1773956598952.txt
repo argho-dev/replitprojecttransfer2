@@ -1,0 +1,126 @@
+You are fixing an existing advanced animated romantic web project.
+
+The UI already exists (stars background, timer, love letter, etc.), but there are functional bugs and missing features.
+
+YOUR TASK: Fix all issues and implement missing functionality cleanly.
+
+--------------------------------------
+
+1. FIX CLICK ISSUE (CRITICAL)
+
+Problem:
+Clicking on the "Love Letter" (envelope) does nothing.
+
+Fix:
+- Ensure the letter element is clickable
+- Properly bind click event AFTER DOM loads
+- Make sure no canvas or overlay blocks clicks
+
+IMPORTANT:
+- Add: canvas { pointer-events: none; }
+- Ensure z-index of clickable elements is above background
+- Add console logs to verify click
+
+Expected:
+Clicking the letter opens a beautiful animated popup
+
+--------------------------------------
+
+2. LETTER OPEN ANIMATION (UPGRADE)
+
+When user clicks letter:
+
+- Animate envelope opening (scale / rotate / unfold effect)
+- Then show a centered popup
+
+Popup should contain:
+- Title: “For You 💖”
+- Message (dynamic, from array)
+- Close button
+
+Add smooth animation:
+- fade + scale (GSAP if available)
+
+--------------------------------------
+
+3. DAILY MESSAGE SYSTEM (IMPORTANT)
+
+Create:
+const messages = [ ... ];
+
+Add 11–15 romantic messages.
+
+Requirements:
+- Show ONE message per day
+- Do NOT repeat messages
+- Use localStorage to track shown messages
+- Automatically pick next unseen message
+
+--------------------------------------
+
+4. MUSIC PLAYER (CUSTOM UI REQUIRED)
+
+DO NOT use default audio controls.
+
+Build a custom floating music player:
+
+Features:
+- Play / Pause button
+- Song progress bar
+- Time display (current / total)
+- Volume control (optional)
+
+Behavior:
+- Music starts ONLY after user interaction (click)
+- Toggle play/pause
+- Smooth UI (glassmorphism style)
+
+Structure:
+<audio id="bgMusic" src="your-song.mp3"></audio>
+
+JS:
+- play()
+- pause()
+- update progress bar
+
+--------------------------------------
+
+5. UI IMPROVEMENTS
+
+- Ensure everything is centered and responsive
+- Add hover glow to envelope
+- Add subtle animation loop (floating effect)
+- Smooth transitions everywhere
+
+--------------------------------------
+
+6. DEBUGGING SAFETY
+
+- Add console logs:
+  "Letter clicked"
+  "Popup opened"
+  "Music started"
+
+--------------------------------------
+
+7. CODE QUALITY
+
+- Clean modular JS
+- No duplicate code
+- Proper event handling
+- No inline JS (except minimal if needed)
+
+--------------------------------------
+
+OUTPUT:
+
+- Updated full working code
+- HTML + CSS + JS properly structured
+- Everything should work immediately when run
+
+--------------------------------------
+
+IMPORTANT:
+Do not redesign UI from scratch.
+Only fix bugs + enhance functionality.
+Make sure EVERYTHING works.

@@ -1,0 +1,508 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --font-sans: var(--app-font-sans);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+:root {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 330 100% 71%;
+  --primary: 330 100% 71%;
+  --primary-foreground: 240 5.9% 10%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 270 100% 71%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 84.2% 60.2%;
+  --app-font-sans: 'Inter', sans-serif;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #000;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* ============ STARFIELD ============ */
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ============ NEON GLOW ============ */
+.neon-text {
+  text-shadow:
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px #ff79c6,
+    0 0 82px #ff79c6,
+    0 0 92px #ff79c6,
+    0 0 102px #ff79c6;
+}
+
+.neon-pink {
+  color: #ff79c6;
+  text-shadow:
+    0 0 7px #ff79c6,
+    0 0 10px #ff79c6,
+    0 0 21px #ff79c6,
+    0 0 42px #ff2d78,
+    0 0 82px #ff2d78;
+}
+
+.neon-blue {
+  color: #8be9fd;
+  text-shadow:
+    0 0 7px #8be9fd,
+    0 0 10px #8be9fd,
+    0 0 21px #8be9fd,
+    0 0 42px #0096c7,
+    0 0 82px #0096c7;
+}
+
+.neon-purple {
+  color: #bd93f9;
+  text-shadow:
+    0 0 7px #bd93f9,
+    0 0 10px #bd93f9,
+    0 0 21px #bd93f9,
+    0 0 42px #6200ea,
+    0 0 82px #6200ea;
+}
+
+/* ============ GLASSMORPHISM ============ */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 120, 200, 0.2);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(255, 41, 120, 0.1);
+}
+
+/* ============ GLOW BUTTON ============ */
+.glow-button {
+  background: linear-gradient(135deg, #ff2d78, #8B5CF6);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 16px 48px;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow:
+    0 0 20px rgba(255, 45, 120, 0.4),
+    0 0 40px rgba(255, 45, 120, 0.2),
+    0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.glow-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 0 30px rgba(255, 45, 120, 0.6),
+    0 0 60px rgba(255, 45, 120, 0.3),
+    0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.glow-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ============ PROGRESS BAR ============ */
+.progress-bar {
+  background: linear-gradient(90deg, #ff2d78, #8B5CF6, #8be9fd);
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+  border-radius: 100px;
+  height: 4px;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============ FLOATING HEARTS ============ */
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-100vh) scale(0.3) rotate(360deg); opacity: 0; }
+}
+
+.floating-heart {
+  animation: floatUp linear forwards;
+  position: fixed;
+  pointer-events: none;
+  z-index: 999;
+  font-size: 1.5rem;
+}
+
+/* ============ FIREFLY ============ */
+@keyframes fireflyMove {
+  0%, 100% { transform: translate(0, 0); opacity: 0.2; }
+  25% { transform: translate(30px, -20px); opacity: 1; }
+  50% { transform: translate(-20px, 30px); opacity: 0.6; }
+  75% { transform: translate(15px, 10px); opacity: 0.9; }
+}
+
+.firefly {
+  animation: fireflyMove ease-in-out infinite;
+  border-radius: 50%;
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ============ BEAR CHARACTER ============ */
+.bear {
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.bear:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.bear:active {
+  transform: scale(0.9) rotate(-5deg);
+}
+
+/* ============ CLOCK DISPLAY ============ */
+.clock-display {
+  font-family: 'Courier New', monospace;
+  font-size: clamp(2rem, 6vw, 5rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #8be9fd;
+  text-shadow:
+    0 0 10px #8be9fd,
+    0 0 20px #8be9fd,
+    0 0 40px #0096c7;
+}
+
+/* ============ CONFETTI ============ */
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti-piece {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ============ TYPING CURSOR ============ */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor::after {
+  content: '|';
+  animation: blink 0.7s ease infinite;
+  color: #ff79c6;
+}
+
+/* ============ HEART MINI GAME ============ */
+@keyframes heartFall {
+  0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(30deg); opacity: 0.8; }
+}
+
+.falling-heart {
+  position: absolute;
+  cursor: pointer;
+  font-size: 2rem;
+  animation: heartFall linear;
+  user-select: none;
+}
+
+/* ============ LOVE LETTER ============ */
+.envelope {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.envelope:hover {
+  transform: scale(1.05) rotate(2deg);
+}
+
+/* ============ MESSAGE BUBBLE ============ */
+@keyframes bubblePop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.message-bubble {
+  animation: bubblePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* ============ PARTICLE CANVAS ============ */
+#fireworks-canvas, #particles-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ============ FINAL REVEAL ============ */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.3); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.3); }
+  70% { transform: scale(1); }
+}
+
+.heartbeat {
+  animation: heartbeat 1.5s ease infinite;
+  display: inline-block;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+.glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* ============ SCROLLABLE ============ */
+.scroll-container {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* ============ EMOJI RAIN ============ */
+@keyframes emojiRain {
+  0% { transform: translateY(-50px) rotate(0deg) scale(1); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(360deg) scale(0.5); opacity: 0; }
+}
+
+.rain-emoji {
+  position: fixed;
+  pointer-events: none;
+  z-index: 900;
+  animation: emojiRain linear forwards;
+  font-size: 1.8rem;
+}
+
+/* ============ CANVAS CONTAINER ============ */
+.canvas-full {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ============ TEXT GLOW ANIMATION ============ */
+@keyframes textGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px #ff79c6, 0 0 20px #ff79c6, 0 0 40px #ff2d78;
+  }
+  50% {
+    text-shadow: 0 0 20px #ff79c6, 0 0 40px #ff79c6, 0 0 80px #ff2d78, 0 0 100px #ff2d78;
+  }
+}
+
+.text-glow-animate {
+  animation: textGlow 2s ease-in-out infinite;
+}
+
+/* ============ WALKNG BEAR ============ */
+@keyframes walkRight {
+  0% { transform: translateX(-150px); }
+  100% { transform: translateX(calc(100vw + 150px)); }
+}
+
+@keyframes walkLeft {
+  0% { transform: translateX(calc(100vw + 150px)) scaleX(-1); }
+  100% { transform: translateX(-150px) scaleX(-1); }
+}
+
+.bear-walk-right {
+  animation: walkRight linear forwards;
+  position: absolute;
+}
+
+.bear-walk-left {
+  animation: walkLeft linear forwards;
+  position: absolute;
+}
+
+/* ============ SHIMMER ============ */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #ff79c6 0%,
+    #bd93f9 25%,
+    #8be9fd 50%,
+    #bd93f9 75%,
+    #ff79c6 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ============ 3D ROTATE ============ */
+@keyframes rotate3d {
+  from { transform: perspective(600px) rotateY(0deg); }
+  to { transform: perspective(600px) rotateY(360deg); }
+}
+
+.rotate-3d {
+  animation: rotate3d 8s linear infinite;
+}
+
+/* ============ STARS TWINKLE ============ */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 640px) {
+  .clock-display { font-size: 2rem; }
+  .glow-button { padding: 14px 36px; font-size: 1rem; }
+}
+
+/* ============ CRITICAL: canvas never blocks clicks ============ */
+canvas {
+  pointer-events: none;
+}
+
+/* ============ ENVELOPE hover glow ============ */
+@keyframes envelopeFloat {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-12px) rotate(1deg); }
+}
+
+.envelope {
+  animation: envelopeFloat 3.5s ease-in-out infinite;
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.envelope:hover {
+  filter: drop-shadow(0 0 28px rgba(255,121,198,0.9)) !important;
+}
+
+/* ============ RANGE input track ============ */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255,255,255,0.12);
+  border-radius: 100px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff79c6;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(255,121,198,0.7);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff79c6;
+  cursor: pointer;
+  border: none;
+}
+
+/* ============ CANDLE FLAME FLICKER ============ */
+@keyframes candleFlicker {
+  0%   { transform: scaleX(1)    scaleY(1)    rotate(-3deg); opacity: 1; }
+  50%  { transform: scaleX(0.85) scaleY(1.15) rotate(2deg);  opacity: 0.9; }
+  100% { transform: scaleX(1.1)  scaleY(0.9)  rotate(-1deg); opacity: 1; }
+}
+
+/* ============ SMOKE RISE ============ */
+@keyframes smokeRise {
+  0%   { opacity: 0.7; transform: translateY(0)   scaleX(1); }
+  50%  { opacity: 0.4; transform: translateY(-18px) scaleX(1.5); }
+  100% { opacity: 0;   transform: translateY(-36px) scaleX(2); }
+}
+
+/* ============ MARQUEE SCROLL for long song titles ============ */
+@keyframes marqueeScroll {
+  0%   { transform: translateX(0); }
+  40%  { transform: translateX(0); }
+  90%  { transform: translateX(-60%); }
+  100% { transform: translateX(0); }
+}
+
+/* ============ SMOOTH transitions everywhere ============ */
+.glass, .glass-card {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.glass-card:hover {
+  box-shadow: 0 12px 40px rgba(255,41,120,0.18);
+}
+button, [role="button"] {
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.2s ease;
+}

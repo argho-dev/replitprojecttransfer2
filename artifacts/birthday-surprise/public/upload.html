@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Songs 🎵</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #050510;
+      color: #f8f8f2;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ff79c6, #bd93f9, #8be9fd);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.4rem;
+    }
+    .subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,121,198,0.18);
+      border-radius: 14px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      transition: border-color 0.2s;
+    }
+    .card.done { border-color: rgba(80,250,123,0.45); }
+    .card.uploading { border-color: rgba(255,121,198,0.6); }
+    .card-top { display: flex; align-items: center; gap: 0.6rem; }
+    .track-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #ff79c6, #bd93f9);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+      color: white;
+    }
+    .track-num.done { background: linear-gradient(135deg, #50fa7b, #8be9fd); }
+    .song-info { flex: 1; min-width: 0; }
+    .song-title { font-size: 0.82rem; font-weight: 600; color: #ff79c6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .song-artist { font-size: 0.7rem; color: rgba(189,147,249,0.8); }
+    .status-pill {
+      font-size: 0.65rem; padding: 3px 8px; border-radius: 100px;
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+    .status-pill.done { background: rgba(80,250,123,0.15); color: #50fa7b; }
+    .status-pill.uploading { background: rgba(255,121,198,0.15); color: #ff79c6; }
+    .file-label {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px dashed rgba(255,121,198,0.3);
+      border-radius: 9px; padding: 0.55rem 0.75rem;
+      cursor: pointer; transition: background 0.2s, border-color 0.2s;
+      font-size: 0.78rem; color: rgba(255,255,255,0.5);
+    }
+    .file-label:hover { background: rgba(255,121,198,0.08); border-color: rgba(255,121,198,0.5); color: #ff79c6; }
+    .file-label input { display: none; }
+    .progress-bar {
+      height: 4px; border-radius: 100px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 100px; width: 0%;
+      background: linear-gradient(90deg, #ff2d78, #bd93f9);
+      transition: width 0.3s ease;
+    }
+    .done-icon { font-size: 1.1rem; }
+    .all-done {
+      text-align: center; margin-top: 2rem; padding: 1.5rem;
+      background: rgba(80,250,123,0.06);
+      border: 1px solid rgba(80,250,123,0.25);
+      border-radius: 14px; max-width: 860px; margin: 2rem auto 0;
+      display: none;
+    }
+    .all-done.show { display: block; }
+    .all-done h2 { color: #50fa7b; font-size: 1.2rem; margin-bottom: 0.4rem; }
+    .all-done p { color: rgba(255,255,255,0.5); font-size: 0.85rem; }
+    .all-done a { color: #ff79c6; }
+    .msg { font-size: 0.7rem; color: rgba(255,255,255,0.35); min-height: 1em; }
+    .msg.error { color: #ff5555; }
+    .msg.success { color: #50fa7b; }
+  </style>
+</head>
+<body>
+  <h1>🎵 Upload Your Songs</h1>
+  <p class="subtitle">Click each card and pick the matching MP3 from your computer</p>
+
+  <div class="grid" id="grid"></div>
+  <div class="all-done" id="allDone">
+    <h2>✅ All songs uploaded!</h2>
+    <p>Go back to the <a href="/">birthday surprise</a> and press ▶ to play 🎉</p>
+  </div>
+
+  <script>
+    const SONGS = [
+      { n:'01', title:'Dancing With Your Ghost', artist:'Sasha Alex Sloan' },
+      { n:'02', title:'The Night We Met',        artist:'Lord Huron' },
+      { n:'03', title:'Another Love',            artist:'Tom Odell' },
+      { n:'04', title:'Until I Found You',       artist:'Stephen Sanchez' },
+      { n:'05', title:'Heather',                 artist:'Conan Gray' },
+      { n:'06', title:'I Wanna Be Yours',        artist:'Arctic Monkeys' },
+      { n:'07', title:'Those Eyes',              artist:'New West' },
+      { n:'08', title:'All I Want',              artist:'Kodaline' },
+      { n:'09', title:'Arcade',                  artist:'Duncan Laurence' },
+      { n:'10', title:'Let Me Down Slowly',      artist:'Alec Benjamin' },
+    ];
+
+    const uploadedSet = new Set();
+
+    async function checkStatus() {
+      try {
+        const r = await fetch('/api/music-status');
+        const { status } = await r.json();
+        status.forEach(({ track, uploaded }) => {
+          if (uploaded) markDone(track);
+        });
+      } catch(e) { /* api might be off */ }
+    }
+
+    function markDone(track) {
+      uploadedSet.add(track);
+      const card = document.getElementById('card-' + track);
+      if (!card) return;
+      card.classList.add('done');
+      card.classList.remove('uploading');
+      card.querySelector('.track-num').classList.add('done');
+      card.querySelector('.status-pill').textContent = '✓ Uploaded';
+      card.querySelector('.status-pill').className = 'status-pill done';
+      card.querySelector('.file-label').style.display = 'none';
+      card.querySelector('.progress-bar').style.display = 'none';
+      card.querySelector('.msg').textContent = '';
+      if (uploadedSet.size === SONGS.length) {
+        document.getElementById('allDone').classList.add('show');
+      }
+    }
+
+    async function uploadFile(track, file, card) {
+      const progressFill = card.querySelector('.progress-fill');
+      const msgEl = card.querySelector('.msg');
+      const label = card.querySelector('.file-label');
+
+      card.classList.add('uploading');
+      label.style.pointerEvents = 'none';
+      card.querySelector('.status-pill').textContent = 'Uploading…';
+      card.querySelector('.status-pill').className = 'status-pill uploading';
+      msgEl.className = 'msg';
+      msgEl.textContent = `Uploading ${file.name}…`;
+      progressFill.style.width = '15%';
+
+      const form = new FormData();
+      form.append('track', track);
+      form.append('file', file);
+
+      try {
+        // Simulate progress
+        let p = 15;
+        const ticker = setInterval(() => {
+          p = Math.min(p + Math.random() * 15, 88);
+          progressFill.style.width = p + '%';
+        }, 300);
+
+        const res = await fetch('/api/upload-music?track=' + track, {
+          method: 'POST',
+          body: form,
+        });
+
+        clearInterval(ticker);
+        progressFill.style.width = '100%';
+
+        if (res.ok) {
+          msgEl.className = 'msg success';
+          msgEl.textContent = '✓ Saved!';
+          setTimeout(() => markDone(track), 400);
+        } else {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Upload failed');
+        }
+      } catch(err) {
+        progressFill.style.width = '0%';
+        label.style.pointerEvents = 'auto';
+        card.classList.remove('uploading');
+        card.querySelector('.status-pill').textContent = 'Retry';
+        card.querySelector('.status-pill').className = 'status-pill';
+        msgEl.className = 'msg error';
+        msgEl.textContent = '✗ ' + err.message;
+      }
+    }
+
+    // Build UI
+    const grid = document.getElementById('grid');
+    SONGS.forEach(({ n, title, artist }) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = 'card-' + n;
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="track-num">${n}</div>
+          <div class="song-info">
+            <div class="song-title">${title}</div>
+            <div class="song-artist">${artist}</div>
+          </div>
+          <div class="status-pill">Pending</div>
+        </div>
+        <label class="file-label">
+          <span>📁</span>
+          <span>Pick MP3 file…</span>
+          <input type="file" accept=".mp3,audio/*" />
+        </label>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <div class="msg"></div>
+      `;
+      card.querySelector('input').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (file) uploadFile(n, file, card);
+      });
+      grid.appendChild(card);
+    });
+
+    checkStatus();
+  </script>
+</body>
+</html>

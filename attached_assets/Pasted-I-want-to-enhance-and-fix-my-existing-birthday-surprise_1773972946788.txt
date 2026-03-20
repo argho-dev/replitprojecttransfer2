@@ -1,0 +1,93 @@
+I want to enhance and fix my existing birthday surprise web app. Please implement the following features and fixes carefully without breaking the current design.
+
+---
+
+### 1. Smart Music System (Daily Random Song)
+
+I have already added 7 songs in `/public/music/`:
+
+* n01.mp3 → Those Eyes (New West)
+* n02.mp3 → The Night We Met (Lord Huron)
+* n03.mp3 → Until I Found You (Stephen Sanchez)
+* n04.mp3 → Blue (Yung Kai)
+* n05.mp3 → I Wanna Be Yours (Arctic Monkeys)
+* n06.mp3 → Dandelions (Ruth B)
+* n07.mp3 → Ordinary
+
+Now implement:
+
+* Each day, ONLY ONE song should be selected and played
+* The song should be randomly selected
+* The selection should reset every day at 12:00 AM (midnight)
+* A song should NOT repeat for at least 3 days after it was last played
+* Store history locally (localStorage) to track previously played songs
+
+Also fix the music player UI:
+
+* Show the correct song name
+* Play/Pause button should work
+* Volume controls should work
+* Ensure the player loads songs from `/public/music/` correctly
+
+---
+
+### 2. Countdown Fix (Reverse Timer)
+
+Fix the countdown system:
+
+* Target date: March 31st, 12:00 AM (midnight)
+* The timer should show: "Time remaining until birthday"
+* It should dynamically update in real-time
+* From today, it should correctly show remaining days (e.g., 10 days, not 11)
+* Countdown should decrease every second
+
+---
+
+### 3. Daily Reset Logic
+
+* Every feature (song + messages) should reset daily at 12:00 AM
+* Use system time to detect date change
+* Ensure consistency even after page refresh
+
+---
+
+### 4. Daily Messages System (2 Messages Per Day)
+
+* Each day, show exactly 2 unique slideable messages
+* Messages should NOT be romantic love messages
+* Instead, they should be:
+
+  * appreciation
+  * compliments
+  * positive thoughts about her
+
+Example tone:
+
+* "You have a really beautiful way of making people feel comfortable"
+* "Your presence makes things feel lighter and happier"
+
+---
+
+### 5. Final Day Special (March 31st Midnight)
+
+On the final day (birthday at 12:00 AM):
+
+* Override normal messages
+* Show exactly 2 special messages:
+
+1. "Happy Birthday 🎉"
+2. "You are precious to me, always be happy 💛"
+
+---
+
+### 6. General Requirements
+
+* Do NOT break existing UI design
+* Keep everything smooth and responsive
+* Use clean and modular code
+* Use localStorage for persistence where needed
+
+---
+
+Goal:
+Create a dynamic, emotionally engaging experience that evolves daily until the birthday.

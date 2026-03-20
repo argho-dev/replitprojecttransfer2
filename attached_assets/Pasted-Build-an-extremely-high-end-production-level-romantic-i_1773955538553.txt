@@ -1,0 +1,150 @@
+Build an extremely high-end, production-level romantic interactive web experience using HTML, CSS, and JavaScript (no heavy frameworks, but GSAP / Three.js allowed).
+
+This is NOT a simple webpage. It should feel like a premium emotional digital journey with daily surprises until a final big reveal.
+
+--------------------------------------
+
+CORE IDEA:
+A "Daily Surprise Countdown Experience" that unlocks new animated content every day until March 31 (final birthday reveal at 12:00 AM).
+
+--------------------------------------
+
+1. ENTRY EXPERIENCE (VERY IMPORTANT)
+- On first load:
+  - Black screen → stars slowly appear (cinematic)
+  - A digital clock counts current time in glowing neon style
+  - Smooth background ambient music starts ONLY after click
+  - Text fades in:
+
+    "Hey... wait a second 💫"
+    "Something special is coming..."
+
+- Then show a glowing button:
+  "Continue to Today’s Surprise →"
+
+--------------------------------------
+
+2. DATE-BASED LOGIC (CRITICAL FEATURE)
+- Detect current date automatically
+- Content should change EVERY DAY
+- No repetition of animations/messages
+- Store seen content in localStorage
+
+- Logic:
+  if (date < March 31):
+     show random daily surprise (unique each day)
+  if (date == March 31 AND time >= 00:00):
+     show FINAL GOD-LEVEL EXPERIENCE
+
+--------------------------------------
+
+3. DAILY SURPRISE ENGINE (BEFORE MARCH 31)
+
+Each day randomly shows ONE of MANY experiences:
+
+Create at least 15–20 unique animation modules:
+
+Examples:
+
+- Floating cute characters (bear couples hugging, kissing, teasing)
+- Message bubbles popping randomly
+- Fireflies + glowing hearts animation
+- Interactive "tap to reveal message"
+- Mini game: catch hearts
+- Animated love letter opening
+- Rain of emojis 💖✨🌸
+- Cartoon characters walking and interacting
+- Sticker-style animations like cute hugging bears (IMPORTANT STYLE)
+
+Animations must include:
+- Smooth physics
+- Motion (walking, floating, bouncing)
+- Hover/click interaction
+
+Messages should feel personal and emotional, like:
+- "You make ordinary days feel special"
+- "Maybe you don’t realize it, but you matter a lot"
+- "This is just a small thing… for someone not small to me"
+
+--------------------------------------
+
+4. CHARACTER SYSTEM (IMPORTANT)
+- Use cute animated characters (like chibi bears / soft cartoon couples)
+- They should:
+  - Move around
+  - Hug / kiss / wave
+  - React to clicks
+
+--------------------------------------
+
+5. PROGRESS SYSTEM
+- At bottom:
+  Show:
+  "X days left until your birthday 🎂"
+
+- And:
+  "Come back tomorrow for something new 💫"
+
+--------------------------------------
+
+6. FINAL DAY (MARCH 31 MIDNIGHT) — GOD LEVEL
+
+This should be EXTREMELY PREMIUM:
+
+Sequence:
+
+1. Screen goes black
+2. Heartbeat sound
+3. Name appears slowly:
+   "Happy Birthday [Her Name] ❤️"
+
+4. Fireworks (canvas or Three.js)
+5. 3D rotating text or glowing particles forming message
+6. Final emotional message (centered, cinematic)
+
+7. OPTIONAL:
+   A final line like:
+   "I don’t know where I stand in your life… but you made a place in mine."
+
+8. Background music peaks
+
+--------------------------------------
+
+7. TECH FEATURES
+- Use:
+  - Canvas API for particles
+  - GSAP for animations
+  - LocalStorage for tracking shown content
+  - Date + Time API for logic
+
+- Must be:
+  - Fully responsive
+  - Smooth (60fps animations)
+  - Clean modular code
+
+--------------------------------------
+
+8. UI QUALITY
+- Glassmorphism + neon glow UI
+- Smooth transitions (no abrupt cuts)
+- Premium feel like Apple-level animation
+
+--------------------------------------
+
+9. BONUS (IF POSSIBLE)
+- Voice message playback
+- Confetti on clicks
+- Hidden easter eggs
+
+--------------------------------------
+
+IMPORTANT:
+This must look like a senior developer built it (10+ years experience level).
+Focus heavily on animation smoothness, emotional storytelling, and uniqueness.
+
+--------------------------------------
+
+Output:
+- Full working code (HTML + CSS + JS)
+- Organized clean structure
+- Ready to run on Replit
