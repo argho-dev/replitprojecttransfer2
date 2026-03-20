@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import type { Song, SyncedLyric } from '../lib/songs';
 
 /* ─── Types ─────────────────────────────────────────────────── */
-interface LyricBurst {
+interface WordBurst {
   id: number;
-  text: string;
-  x: number;      // % from left
-  y: number;      // % from top
+  word: string;
+  x: number;
+  y: number;
   color: string;
-  glowA: string;  // glow color rgba (strong)
-  glowB: string;  // glow color rgba (soft outer)
+  glowA: string;
+  glowB: string;
   fontSize: number;
   angle: number;
   phase: 'in' | 'hold' | 'out';
@@ -17,20 +17,20 @@ interface LyricBurst {
 
 /* ─── Palette ────────────────────────────────────────────────── */
 const PALETTE = [
-  { color: '#ff79c6', glowA: 'rgba(255,121,198,0.95)', glowB: 'rgba(255,121,198,0.45)' },
-  { color: '#bd93f9', glowA: 'rgba(189,147,249,0.95)', glowB: 'rgba(189,147,249,0.45)' },
-  { color: '#8be9fd', glowA: 'rgba(139,233,253,0.95)', glowB: 'rgba(139,233,253,0.40)' },
-  { color: '#ffb86c', glowA: 'rgba(255,184,108,0.95)', glowB: 'rgba(255,184,108,0.40)' },
-  { color: '#f1fa8c', glowA: 'rgba(241,250,140,0.95)', glowB: 'rgba(241,250,140,0.40)' },
-  { color: '#ff92df', glowA: 'rgba(255,146,223,0.95)', glowB: 'rgba(255,146,223,0.45)' },
-  { color: '#a5f3fc', glowA: 'rgba(165,243,252,0.95)', glowB: 'rgba(165,243,252,0.40)' },
-  { color: '#fca5a5', glowA: 'rgba(252,165,165,0.95)', glowB: 'rgba(252,165,165,0.40)' },
-  { color: '#c4b5fd', glowA: 'rgba(196,181,253,0.95)', glowB: 'rgba(196,181,253,0.45)' },
-  { color: '#6ee7b7', glowA: 'rgba(110,231,183,0.95)', glowB: 'rgba(110,231,183,0.40)' },
+  { color: '#ff79c6', glowA: 'rgba(255,121,198,1)',   glowB: 'rgba(255,121,198,0.5)' },
+  { color: '#bd93f9', glowA: 'rgba(189,147,249,1)',   glowB: 'rgba(189,147,249,0.5)' },
+  { color: '#8be9fd', glowA: 'rgba(139,233,253,1)',   glowB: 'rgba(139,233,253,0.5)' },
+  { color: '#ffb86c', glowA: 'rgba(255,184,108,1)',   glowB: 'rgba(255,184,108,0.5)' },
+  { color: '#f1fa8c', glowA: 'rgba(241,250,140,1)',   glowB: 'rgba(241,250,140,0.5)' },
+  { color: '#ff92df', glowA: 'rgba(255,146,223,1)',   glowB: 'rgba(255,146,223,0.5)' },
+  { color: '#ffffff', glowA: 'rgba(255,255,255,0.95)', glowB: 'rgba(255,200,230,0.5)' },
+  { color: '#fca5a5', glowA: 'rgba(252,165,165,1)',   glowB: 'rgba(252,165,165,0.5)' },
+  { color: '#c4b5fd', glowA: 'rgba(196,181,253,1)',   glowB: 'rgba(196,181,253,0.5)' },
+  { color: '#6ee7b7', glowA: 'rgba(110,231,183,1)',   glowB: 'rgba(110,231,183,0.5)' },
 ];
 
-const SIZES  = [17, 19, 21, 23, 26, 29, 32];
-const ANGLES = [-9, -6, -3, 0, 3, 6, 9];
+const SIZES  = [20, 22, 25, 28, 32, 36, 40];
+const ANGLES = [-10, -7, -4, -2, 0, 2, 4, 7, 10];
 
 /* ─── Helpers ────────────────────────────────────────────────── */
 let _nextId = 0;
@@ -43,10 +43,6 @@ function pickRand<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/**
- * Return the lyric whose start time is ≤ currentTime and is the closest
- * match, i.e. the most-recently-started line.
- */
 function getActiveLyric(t: number, lyrics: SyncedLyric[]): SyncedLyric | null {
   let result: SyncedLyric | null = null;
   for (const l of lyrics) {
@@ -56,22 +52,23 @@ function getActiveLyric(t: number, lyrics: SyncedLyric[]): SyncedLyric | null {
   return result;
 }
 
-/* ─── Animation keyframes ────────────────────────────────────── */
+/* ─── Keyframes ──────────────────────────────────────────────── */
 const CSS = `
-@keyframes lb-in {
-  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.35) rotate(var(--a,0deg)); filter:blur(8px);  }
-  60%  { opacity:1; transform:translate(-50%,-50%) scale(1.08) rotate(var(--a,0deg)); filter:blur(0px); }
-  100% { opacity:1; transform:translate(-50%,-50%) scale(1)    rotate(var(--a,0deg)); filter:blur(0px); }
+@keyframes wb-in {
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.2) rotate(var(--ang)); filter:blur(10px); }
+  55%  { opacity:1; transform:translate(-50%,-50%) scale(1.15) rotate(var(--ang)); filter:blur(0);   }
+  100% { opacity:1; transform:translate(-50%,-50%) scale(1)    rotate(var(--ang)); filter:blur(0);   }
 }
-@keyframes lb-out {
-  0%   { opacity:1; transform:translate(-50%,-50%) scale(1)    rotate(var(--a,0deg)); filter:blur(0px); }
-  100% { opacity:0; transform:translate(-50%,-50%) scale(0.7)  rotate(var(--a,0deg)); filter:blur(5px);  }
+@keyframes wb-out {
+  0%   { opacity:1; transform:translate(-50%,-50%) scale(1)   rotate(var(--ang)); filter:blur(0);   }
+  100% { opacity:0; transform:translate(-50%,-50%) scale(0.6) rotate(var(--ang)); filter:blur(6px); }
 }
 `;
 
-const IN_MS   = 450;
-const HOLD_MS = 2400;
-const OUT_MS  = 600;
+const IN_MS   = 380;
+const HOLD_MS = 2000;
+const OUT_MS  = 500;
+const WORD_STAGGER_MS = 80; // delay between each word in a line
 
 /* ─── Component ──────────────────────────────────────────────── */
 interface Props {
@@ -81,7 +78,7 @@ interface Props {
 }
 
 export default function LyricsPopup({ playing, song, currentTime }: Props) {
-  const [bursts, setBursts] = useState<LyricBurst[]>([]);
+  const [words, setWords]   = useState<WordBurst[]>([]);
   const lastTextRef         = useRef<string | null>(null);
   const lastTimeRef         = useRef<number>(-99);
   const timersRef           = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -89,7 +86,6 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
   const addTimer = (fn: () => void, ms: number) => {
     const t = setTimeout(fn, ms);
     timersRef.current.push(t);
-    return t;
   };
 
   /* Reset when paused or song changes */
@@ -99,11 +95,11 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
       lastTimeRef.current = -99;
       timersRef.current.forEach(clearTimeout);
       timersRef.current = [];
-      setBursts([]);
+      setWords([]);
     }
   }, [playing, song.filename]);
 
-  /* Sync effect: fire whenever currentTime ticks */
+  /* Sync: fire on every currentTime tick */
   useEffect(() => {
     if (!playing) return;
 
@@ -113,55 +109,58 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
     const lyric = getActiveLyric(currentTime, lyrics);
     if (!lyric) return;
 
-    /* Only spawn when a NEW lyric line becomes active */
-    const isSameText = lyric.text === lastTextRef.current;
-    /* Allow re-trigger if user seeks (large time jump) */
-    const timeDelta  = Math.abs(currentTime - lastTimeRef.current);
-    if (isSameText && timeDelta < 1) return;
+    const isSame    = lyric.text === lastTextRef.current;
+    const timeDelta = Math.abs(currentTime - lastTimeRef.current);
+    if (isSame && timeDelta < 1) return;
 
     lastTextRef.current = lyric.text;
     lastTimeRef.current  = currentTime;
 
-    const swatch   = pickRand(PALETTE);
-    const fontSize = pickRand(SIZES);
-    const angle    = pickRand(ANGLES);
+    /* Split into individual words, filter blanks */
+    const wordList = lyric.text.split(/\s+/).filter(Boolean);
 
-    /* Random position: keep well inside viewport */
-    const x = rand(8, 82);
-    const y = rand(10, 82);
+    wordList.forEach((word, wi) => {
+      const delay    = wi * WORD_STAGGER_MS;
+      const swatch   = pickRand(PALETTE);
+      const fontSize = pickRand(SIZES);
+      const angle    = pickRand(ANGLES);
+      const x        = rand(6, 86);
+      const y        = rand(8, 84);
+      const id       = ++_nextId;
 
-    const id = ++_nextId;
+      const burst: WordBurst = {
+        id, word, x, y,
+        color: swatch.color,
+        glowA: swatch.glowA,
+        glowB: swatch.glowB,
+        fontSize, angle,
+        phase: 'in',
+      };
 
-    const burst: LyricBurst = {
-      id,
-      text: lyric.text,
-      x, y,
-      color: swatch.color,
-      glowA: swatch.glowA,
-      glowB: swatch.glowB,
-      fontSize,
-      angle,
-      phase: 'in',
-    };
+      /* Spawn after stagger delay */
+      addTimer(() => {
+        setWords(prev => [...prev.slice(-40), burst]);
+      }, delay);
 
-    setBursts(prev => [...prev.slice(-8), burst]);
+      /* in → hold */
+      addTimer(() => setWords(prev =>
+        prev.map(b => b.id === id ? { ...b, phase: 'hold' } : b)
+      ), delay + IN_MS);
 
-    /* Transition: in → hold → out → remove */
-    addTimer(() => setBursts(prev =>
-      prev.map(b => b.id === id ? { ...b, phase: 'hold' } : b)
-    ), IN_MS);
+      /* hold → out */
+      addTimer(() => setWords(prev =>
+        prev.map(b => b.id === id ? { ...b, phase: 'out' } : b)
+      ), delay + IN_MS + HOLD_MS);
 
-    addTimer(() => setBursts(prev =>
-      prev.map(b => b.id === id ? { ...b, phase: 'out' } : b)
-    ), IN_MS + HOLD_MS);
-
-    addTimer(() => setBursts(prev => prev.filter(b => b.id !== id)),
-      IN_MS + HOLD_MS + OUT_MS + 50
-    );
+      /* remove */
+      addTimer(() => setWords(prev => prev.filter(b => b.id !== id)),
+        delay + IN_MS + HOLD_MS + OUT_MS + 50
+      );
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTime]);
 
-  if (!playing || bursts.length === 0) return null;
+  if (!playing || words.length === 0) return null;
 
   return (
     <>
@@ -175,74 +174,56 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
         }}
         aria-hidden="true"
       >
-        {bursts.map(b => {
+        {words.map(b => {
           const animName =
-            b.phase === 'in'  ? 'lb-in' :
-            b.phase === 'out' ? 'lb-out' : 'none';
+            b.phase === 'in'  ? 'wb-in'  :
+            b.phase === 'out' ? 'wb-out' : 'none';
           const animDur =
-            b.phase === 'in'  ? `${IN_MS}ms` :
+            b.phase === 'in'  ? `${IN_MS}ms`  :
             b.phase === 'out' ? `${OUT_MS}ms` : '0ms';
 
           return (
-            <div
+            <span
               key={b.id}
               style={{
-                /* Position */
                 position: 'absolute',
                 left: `${b.x}%`,
                 top:  `${b.y}%`,
+                ['--ang' as string]: `${b.angle}deg`,
 
-                /* Pivot at center for scale/rotate */
-                transform: `translate(-50%,-50%) scale(${b.phase === 'hold' ? 1 : undefined}) rotate(${b.angle}deg)`,
-
-                /* CSS custom prop for keyframe rotation */
-                ['--a' as string]: `${b.angle}deg`,
-
-                /* Animation */
                 animation: animName !== 'none'
-                  ? `${animName} ${animDur} cubic-bezier(0.175,0.885,0.32,1.275) forwards`
+                  ? `${animName} ${animDur} cubic-bezier(0.175,0.885,0.32,1.4) forwards`
                   : 'none',
                 opacity: b.phase === 'hold' ? 1 : undefined,
 
-                /* Typography */
+                /* Typography — no box, no background */
                 fontSize: `${b.fontSize}px`,
                 fontFamily: "'Inter', sans-serif",
-                fontWeight: 800,
+                fontWeight: 900,
                 fontStyle: 'italic',
-                letterSpacing: '0.025em',
-                lineHeight: 1.25,
+                letterSpacing: '0.01em',
                 color: b.color,
-                textAlign: 'center',
-                maxWidth: '58vw',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-
-                /* Pill background */
-                padding: '5px 16px',
-                borderRadius: 14,
-                background: 'rgba(0,0,0,0.22)',
-                backdropFilter: 'blur(3px)',
-                border: `1px solid ${b.color}30`,
-
-                /* Neon glow layers */
-                textShadow: [
-                  `0 0 6px  ${b.glowA}`,
-                  `0 0 18px ${b.glowA}`,
-                  `0 0 38px ${b.glowB}`,
-                  `0 0 70px ${b.glowB}`,
-                  '0 2px 4px rgba(0,0,0,0.8)',
-                ].join(', '),
-                boxShadow: [
-                  `0 0 16px ${b.glowB}`,
-                  `inset 0 0 12px ${b.color}0a`,
-                ].join(', '),
-
+                whiteSpace: 'nowrap',
                 userSelect: 'none',
+
+                /* Pure neon text glow, no background at all */
+                textShadow: [
+                  `0 0 4px  ${b.glowA}`,
+                  `0 0 12px ${b.glowA}`,
+                  `0 0 28px ${b.glowB}`,
+                  `0 0 55px ${b.glowB}`,
+                ].join(', '),
+
+                background: 'none',
+                border: 'none',
+                boxShadow: 'none',
+                padding: 0,
+
                 willChange: 'transform, opacity, filter',
               }}
             >
-              {b.text}
-            </div>
+              {b.word}
+            </span>
           );
         })}
       </div>
