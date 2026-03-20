@@ -157,7 +157,7 @@ export default function MusicPlayer() {
 
   return (
     <>
-      <LyricsPopup playing={playing} song={song} />
+      <LyricsPopup playing={playing} song={song} currentTime={currentTime} />
       <audio
         key={song.filename}
         ref={audioRef}
