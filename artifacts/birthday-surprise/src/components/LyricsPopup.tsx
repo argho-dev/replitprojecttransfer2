@@ -65,10 +65,11 @@ const CSS = `
 }
 `;
 
-const IN_MS   = 380;
-const HOLD_MS = 2000;
-const OUT_MS  = 500;
-const WORD_STAGGER_MS = 80; // delay between each word in a line
+const IN_MS   = 420;
+const HOLD_MS = 2800;
+const OUT_MS  = 600;
+const WORD_STAGGER_MS = 220; // delay between each word in a line
+const MAX_WORDS_PER_LINE = 5; // cap so screen doesn't flood
 
 /* ─── Component ──────────────────────────────────────────────── */
 interface Props {
@@ -116,8 +117,9 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
     lastTextRef.current = lyric.text;
     lastTimeRef.current  = currentTime;
 
-    /* Split into individual words, filter blanks */
-    const wordList = lyric.text.split(/\s+/).filter(Boolean);
+    /* Split into individual words, filter blanks, cap per line */
+    const allWords = lyric.text.split(/\s+/).filter(Boolean);
+    const wordList = allWords.slice(0, MAX_WORDS_PER_LINE);
 
     wordList.forEach((word, wi) => {
       const delay    = wi * WORD_STAGGER_MS;
@@ -139,7 +141,7 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
 
       /* Spawn after stagger delay */
       addTimer(() => {
-        setWords(prev => [...prev.slice(-40), burst]);
+        setWords(prev => [...prev.slice(-20), burst]);
       }, delay);
 
       /* in → hold */
