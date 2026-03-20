@@ -22,11 +22,36 @@ const MODES: BgMode[] = [
   'aurora',
 ];
 
+const SESSION_BG_KEY  = 'bday_session_bg';
+const HISTORY_BG_KEY  = 'bday_bg_history';
+const AVOID_LAST_N    = 4; // never repeat any of the last 4 picks
+
 export function getDailyBgMode(): BgMode {
   const now = new Date();
   if (now.getMonth() === 2 && now.getDate() === 31) return 'birthday';
-  const idx = now.getDate() % MODES.length;
-  return MODES[idx];
+
+  // Within the same page session, keep the same background
+  const sessionPick = sessionStorage.getItem(SESSION_BG_KEY) as BgMode | null;
+  if (sessionPick && (MODES as string[]).includes(sessionPick)) return sessionPick;
+
+  // Build a pool excluding recently used modes
+  const historyRaw = localStorage.getItem(HISTORY_BG_KEY);
+  const history: BgMode[] = historyRaw ? JSON.parse(historyRaw) : [];
+  const recentSet = new Set(history.slice(-AVOID_LAST_N));
+  const pool = MODES.filter(m => !recentSet.has(m));
+  const candidates = pool.length > 0 ? pool : MODES;
+
+  const pick = candidates[Math.floor(Math.random() * candidates.length)];
+
+  // Persist history (cap at 20 entries)
+  history.push(pick);
+  if (history.length > 20) history.splice(0, history.length - 20);
+  localStorage.setItem(HISTORY_BG_KEY, JSON.stringify(history));
+
+  // Persist for this session
+  sessionStorage.setItem(SESSION_BG_KEY, pick);
+
+  return pick;
 }
 
 /* ─── Petal Rain ─────────────────────────────────────── */

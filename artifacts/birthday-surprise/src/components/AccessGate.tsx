@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import Starfield from './Starfield';
 
-const ACCESS_KEY = 'bday_access';
+const ACCESS_KEY = 'bday_session_access';
 
 interface AccessGateProps {
   onGranted: () => void;
@@ -13,7 +13,7 @@ export default function AccessGate({ onGranted }: AccessGateProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem(ACCESS_KEY) === 'yes') {
+    if (sessionStorage.getItem(ACCESS_KEY) === 'yes') {
       onGranted();
       return;
     }
@@ -30,7 +30,7 @@ export default function AccessGate({ onGranted }: AccessGateProps) {
   }, [visible]);
 
   const handleYes = () => {
-    localStorage.setItem(ACCESS_KEY, 'yes');
+    sessionStorage.setItem(ACCESS_KEY, 'yes');
     gsap.to('.access-card', {
       opacity: 0, scale: 1.05, duration: 0.5, ease: 'power2.in',
       onComplete: onGranted,
