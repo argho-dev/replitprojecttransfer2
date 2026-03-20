@@ -339,7 +339,7 @@ export default function LoveLetter({ message, onReveal }: P) {
             </div>
 
             <div style={{ color: '#4a1030', lineHeight: 1.75, fontSize: 'clamp(.8rem,2.2vw,1rem)' }}>
-              <p style={{ fontStyle: 'italic', opacity: .65, marginBottom: 10 }}>Dear you,</p>
+              <p style={{ fontStyle: 'italic', opacity: .65, marginBottom: 10 }}>Dear Anuska,</p>
               <p style={{ fontWeight: 300, marginBottom: 12 }}>"{message}"</p>
               <p style={{ opacity: .6, fontSize: 'clamp(.72rem,1.9vw,.9rem)', marginBottom: 8 }}>
                 There are feelings that words can barely carry — this is one of them. But I tried anyway, because you deserve to know.
