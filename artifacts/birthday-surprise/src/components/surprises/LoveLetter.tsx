@@ -237,36 +237,49 @@ export default function LoveLetter({ message, onReveal }: P) {
           width: '100%',
           boxSizing: 'border-box',
         }}>
-          <img
-            src={randomPhoto}
-            alt=""
-            style={{
-              width: '100%',
-              aspectRatio: '4 / 3',
-              objectFit: 'cover',
-              display: 'block',
-              borderRadius: 2,
-            }}
-          />
-          {/* Notebook caption */}
           <div style={{
-            marginTop: 8,
-            marginLeft: -10,
-            marginRight: -10,
-            marginBottom: -32,
-            background: 'repeating-linear-gradient(#fdf6e3, #fdf6e3 19px, #b8d4f0 19px, #b8d4f0 20px)',
-            borderTop: '1.5px solid #c9bfa0',
-            borderLeft: '3px solid #e07070',
-            padding: '6px 10px 8px 14px',
+            width: '100%',
+            height: 'clamp(160px, 22vw, 210px)',
+            background: '#f8f3ee',
+            borderRadius: 2,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <img
+              src={randomPhoto}
+              alt=""
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                width: 'auto',
+                height: 'auto',
+                display: 'block',
+                objectFit: 'contain',
+              }}
+            />
+          </div>
+          {/* Caption ribbon */}
+          <div style={{
             textAlign: 'center',
+            marginTop: 6,
+            marginBottom: -20,
           }}>
             <span
               className="shimmer-text"
               style={{
+                display: 'inline-block',
+                background: 'linear-gradient(135deg,rgba(255,121,198,0.18),rgba(189,147,249,0.18))',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,121,198,0.35)',
+                borderRadius: 20,
+                padding: '3px 14px 4px',
                 fontFamily: "'Georgia', serif",
                 fontStyle: 'italic',
                 fontWeight: 700,
-                fontSize: 'clamp(0.75rem, 2vw, 0.92rem)',
+                fontSize: 'clamp(0.72rem, 2vw, 0.9rem)',
                 letterSpacing: '0.05em',
               }}
             >

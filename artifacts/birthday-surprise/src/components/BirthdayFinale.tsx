@@ -215,27 +215,28 @@ export default function BirthdayFinale() {
                     />
                   </div>
 
-                  {/* Notebook caption */}
+                  {/* Caption ribbon */}
                   <div
                     style={{
                       flexShrink: 0,
                       marginTop: 4,
-                      marginLeft: -4,
-                      marginRight: -4,
-                      background: 'repeating-linear-gradient(#fdf6e3, #fdf6e3 15px, #b8d4f0 15px, #b8d4f0 16px)',
-                      borderTop: '1px solid #c9bfa0',
-                      borderLeft: '2.5px solid #e07070',
-                      padding: '4px 6px 5px 10px',
                       textAlign: 'center',
                     }}
                   >
                     <span
                       className="shimmer-text"
                       style={{
+                        display: 'inline-block',
+                        background: 'linear-gradient(135deg,rgba(255,121,198,0.18),rgba(189,147,249,0.18))',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255,121,198,0.35)',
+                        borderRadius: 20,
+                        padding: '2px 10px 3px',
                         fontFamily: "'Georgia', serif",
                         fontStyle: 'italic',
                         fontWeight: 700,
-                        fontSize: 'clamp(0.5rem, 1.1vw, 0.75rem)',
+                        fontSize: 'clamp(0.48rem, 1.1vw, 0.72rem)',
                         letterSpacing: '0.05em',
                       }}
                     >
