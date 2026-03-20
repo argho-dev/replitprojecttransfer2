@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, useMemo } from 'react';
+import { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
 import { gsap } from 'gsap';
 import img1 from '@assets/image1_1774035362435.jpeg';
 import img2 from '@assets/image2_1774035362433.jpeg';
@@ -35,9 +35,47 @@ export default function LoveLetter({ message, onReveal }: P) {
 
   const randomPhoto = useMemo(() => HER_PHOTOS[Math.floor(Math.random() * HER_PHOTOS.length)], []);
 
-  const envelopeRef = useRef<HTMLDivElement>(null);
-  const cardRef     = useRef<HTMLDivElement>(null);   // the letter card
-  const canvasRef   = useRef<HTMLCanvasElement>(null);
+  const envelopeRef   = useRef<HTMLDivElement>(null);
+  const cardRef       = useRef<HTMLDivElement>(null);
+  const canvasRef     = useRef<HTMLCanvasElement>(null);
+  const polaroidRef   = useRef<HTMLDivElement>(null);
+  const dragOffset    = useRef({ x: 0, y: 0 });
+  const isDragging    = useRef(false);
+  const [dragging,    setDragging]    = useState(false);
+  const [polaroidPos, setPolaroidPos] = useState(() => {
+    const w = typeof window !== 'undefined' ? window.innerWidth  : 900;
+    const h = typeof window !== 'undefined' ? window.innerHeight : 600;
+    return { x: w - 320, y: h - 440 };
+  });
+
+  /* ── DRAG HANDLERS ───────────────────────────────────── */
+  const startDrag = (clientX: number, clientY: number) => {
+    isDragging.current = true;
+    setDragging(true);
+    dragOffset.current = { x: clientX - polaroidPos.x, y: clientY - polaroidPos.y };
+  };
+
+  useEffect(() => {
+    const onMove = (clientX: number, clientY: number) => {
+      if (!isDragging.current) return;
+      setPolaroidPos({ x: clientX - dragOffset.current.x, y: clientY - dragOffset.current.y });
+    };
+    const onUp = () => { isDragging.current = false; setDragging(false); };
+
+    const onMouseMove = (e: MouseEvent) => onMove(e.clientX, e.clientY);
+    const onTouchMove = (e: TouchEvent) => { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup',   onUp);
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend',  onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup',   onUp);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend',  onUp);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── ENVELOPE click ──────────────────────────────────── */
   const openEnvelope = () => {
@@ -219,16 +257,25 @@ export default function LoveLetter({ message, onReveal }: P) {
     }}>
       <style>{KF}{POLAROID_KF}</style>
 
-      {/* ── POLAROID (above music player, fixed) ── */}
-      <div style={{
-        position: 'fixed',
-        bottom: 'calc(5rem + 116px)',
-        right: '1.25rem',
-        zIndex: 49,
-        pointerEvents: 'none',
-        width: 'min(300px, 90vw)',
-        animation: 'polaroidFloat 4s ease-in-out infinite',
-      }}>
+      {/* ── POLAROID (draggable) ── */}
+      <div
+        ref={polaroidRef}
+        onMouseDown={e  => { e.preventDefault(); startDrag(e.clientX, e.clientY); }}
+        onTouchStart={e => startDrag(e.touches[0].clientX, e.touches[0].clientY)}
+        style={{
+          position: 'fixed',
+          left: polaroidPos.x,
+          top:  polaroidPos.y,
+          zIndex: 49,
+          cursor: dragging ? 'grabbing' : 'grab',
+          width: 'min(280px, 88vw)',
+          userSelect: 'none',
+          touchAction: 'none',
+          animation: dragging ? 'none' : 'polaroidFloat 4s ease-in-out infinite',
+          filter: dragging ? 'drop-shadow(0 16px 32px rgba(0,0,0,0.28))' : 'none',
+          transition: dragging ? 'none' : 'filter 0.2s ease',
+        }}
+      >
         <div style={{
           background: '#fff',
           padding: '10px 10px 32px 10px',
