@@ -2,8 +2,9 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Starfield from './Starfield';
 
 const TOTAL_FLAMES = 2;
-const BLOW_COOLDOWN_MS = 800;
-const BLOW_RMS_THRESHOLD = 0.035;
+const BLOW_COOLDOWN_MS = 900;
+const BLOW_RMS_THRESHOLD = 0.016;
+const BLOW_SUSTAINED_FRAMES = 4;
 
 type Phase = 'teddy' | 'petals' | 'cake';
 
@@ -241,6 +242,7 @@ export default function BirthdayCake({ onDone }: Props) {
   const [justBlown, setJustBlown]           = useState<boolean[]>(Array(TOTAL_FLAMES).fill(false));
   const [micActive, setMicActive]           = useState(false);
   const [micError, setMicError]             = useState(false);
+  const [micLevel, setMicLevel]             = useState(0);
   const [allOut, setAllOut]                 = useState(false);
   const [showFinal, setShowFinal]           = useState(false);
   const [showFireworks, setShowFireworks]   = useState(false);
@@ -294,23 +296,36 @@ export default function BirthdayCake({ onDone }: Props) {
       streamRef.current = stream;
       const ctx = new AudioContext();
       ctxRef.current = ctx;
+      // Resume immediately — browsers may auto-suspend AudioContext
+      await ctx.resume();
       const source   = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
-      analyser.fftSize = 512;
-      analyser.smoothingTimeConstant = 0.1;
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.35;
       source.connect(analyser);
       analyserRef.current = analyser;
       setMicActive(true);
       const buf = new Float32Array(analyser.fftSize);
+      let blowFrames = 0;
       const detect = () => {
         analyser.getFloatTimeDomainData(buf);
         let sum = 0;
         for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
         const rms = Math.sqrt(sum / buf.length);
+        // Scale to 0-100 for the visual bar
+        const level = Math.min(100, Math.round((rms / 0.12) * 100));
+        setMicLevel(level);
         const now = Date.now();
-        if (rms > BLOW_RMS_THRESHOLD && now - lastBlowRef.current > BLOW_COOLDOWN_MS) {
-          lastBlowRef.current = now;
-          extinguishNext();
+        if (rms > BLOW_RMS_THRESHOLD) {
+          blowFrames++;
+          // Require sustained blow (BLOW_SUSTAINED_FRAMES consecutive frames)
+          if (blowFrames >= BLOW_SUSTAINED_FRAMES && now - lastBlowRef.current > BLOW_COOLDOWN_MS) {
+            lastBlowRef.current = now;
+            blowFrames = 0;
+            extinguishNext();
+          }
+        } else {
+          blowFrames = 0;
         }
         rafRef.current = requestAnimationFrame(detect);
       };
@@ -508,9 +523,22 @@ export default function BirthdayCake({ onDone }: Props) {
               </button>
             )}
             {micActive && (
-              <div className="glass" style={{ padding: '8px 18px', fontSize: '0.8rem', color: '#8be9fd', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ animation: 'heartbeat 0.8s ease-in-out infinite' }}>🎤</span>
-                Listening… take a deep breath and blow!
+              <div className="glass" style={{ padding: '10px 18px', fontSize: '0.8rem', color: '#8be9fd', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: 220 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ animation: 'heartbeat 0.8s ease-in-out infinite' }}>🎤</span>
+                  Listening… take a deep breath and blow!
+                </div>
+                <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${micLevel}%`,
+                    borderRadius: 4,
+                    background: micLevel > 60
+                      ? 'linear-gradient(90deg, #50fa7b, #ffe066)'
+                      : 'linear-gradient(90deg, #8be9fd, #bd93f9)',
+                    transition: 'width 0.08s ease, background 0.2s',
+                  }} />
+                </div>
               </div>
             )}
             {micError && (
