@@ -44,7 +44,7 @@ export default function MusicPlayer() {
   const [duration,         setDuration]         = useState(0);
   const [volume,           setVolume]           = useState(0.65);
   const [loadError,        setLoadError]        = useState(false);
-  const [minimised,        setMinimised]        = useState(false);
+  const [minimised,        setMinimised]        = useState(true);
   const [waitingForGesture, setWaitingForGesture] = useState(false);
 
   const gestureListenerRef = useRef<(() => void) | null>(null);
@@ -167,29 +167,6 @@ export default function MusicPlayer() {
     audio.currentTime = ratio * audio.duration;
   };
 
-  if (minimised) {
-    return (
-      <button
-        onClick={() => setMinimised(false)}
-        title="Open music player"
-        style={{
-          position: 'fixed', bottom: '5rem', right: '1.25rem', zIndex: 50,
-          width: 44, height: 44, borderRadius: '50%',
-          background: 'rgba(255,121,198,0.15)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255,121,198,0.35)',
-          cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '1.3rem', color: '#ff79c6',
-          boxShadow: playing ? '0 0 18px rgba(255,121,198,0.7)' : 'none',
-          animation: playing ? 'glowPulse 1.5s ease-in-out infinite' : 'none',
-        }}
-      >
-        🎵
-      </button>
-    );
-  }
-
   return (
     <>
       <LyricsPopup playing={playing} song={song} currentTime={currentTime} />
@@ -200,6 +177,30 @@ export default function MusicPlayer() {
         preload="auto"
       />
 
+      {/* Minimised bubble — always present in DOM so audio keeps playing */}
+      {minimised && (
+        <button
+          onClick={() => setMinimised(false)}
+          title="Open music player"
+          style={{
+            position: 'fixed', bottom: '5rem', right: '1.25rem', zIndex: 50,
+            width: 44, height: 44, borderRadius: '50%',
+            background: 'rgba(255,121,198,0.15)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,121,198,0.35)',
+            cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.3rem', color: '#ff79c6',
+            boxShadow: playing ? '0 0 18px rgba(255,121,198,0.7)' : 'none',
+            animation: playing ? 'glowPulse 1.5s ease-in-out infinite' : 'none',
+          }}
+        >
+          🎵
+        </button>
+      )}
+
+      {/* Full player panel */}
+      {!minimised && (
       <div style={{
         position: 'fixed', bottom: '5rem', right: '1.25rem', zIndex: 50,
         width: 'min(300px, 90vw)',
@@ -313,6 +314,7 @@ export default function MusicPlayer() {
           }
         </div>
       </div>
+      )}
     </>
   );
 }
