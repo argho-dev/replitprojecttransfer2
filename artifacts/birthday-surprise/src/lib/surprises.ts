@@ -80,7 +80,7 @@ export function isBirthdayEve(): boolean {
 
 export function isBirthdayFinalDay(): boolean {
   const now = new Date();
-  const activation = new Date(2026, 2, 30, 0, 0, 0);
+  const activation = new Date(2026, 2, 31, 0, 0, 0);
   return now >= activation;
 }
 
