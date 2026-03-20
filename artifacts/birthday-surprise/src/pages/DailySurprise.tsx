@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, lazy, Suspense, useCallback } from 'react';
 import { gsap } from 'gsap';
 import Starfield from '../components/Starfield';
-import MusicPlayer from '../components/MusicPlayer';
 import DailyBackground from '../components/DailyBackground';
 import {
   getCountdownParts,
   getTodayMessages,
+  isBirthdayFinalDay,
 } from '../lib/surprises';
 import { spawnFloatingHearts } from '../components/ConfettiEffect';
 
@@ -260,7 +260,7 @@ function MessagePopup({ messages, onClose }: { messages: string[]; onClose: () =
   );
 }
 
-export default function DailySurprise() {
+export default function DailySurprise({ onGoToCake }: { onGoToCake?: () => void }) {
   // Love letter envelope is always shown
   const moduleName  = 'loveLetter';
   const SurpriseCmp = modules['loveLetter'];
@@ -346,7 +346,11 @@ export default function DailySurprise() {
               <div className="text-4xl animate-pulse heartbeat">💖</div>
             </div>
           }>
-            <SurpriseCmp message={todayMsgs[0]} onReveal={() => { setShowPopup(true); setPopupDismissed(false); }} />
+            <SurpriseCmp
+              message={todayMsgs[0]}
+              onReveal={() => { setShowPopup(true); setPopupDismissed(false); }}
+              onScratchDone={isBirthdayFinalDay() ? onGoToCake : undefined}
+            />
           </Suspense>
         )}
       </div>
@@ -396,7 +400,6 @@ export default function DailySurprise() {
         />
       )}
 
-      <MusicPlayer />
     </div>
   );
 }

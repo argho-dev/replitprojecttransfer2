@@ -78,6 +78,12 @@ export function isBirthdayEve(): boolean {
   return now.getMonth() === 2 && now.getDate() === 30 && now.getHours() === 23 && now.getMinutes() >= 50;
 }
 
+export function isBirthdayFinalDay(): boolean {
+  const now = new Date();
+  const activation = new Date(2026, 2, 30, 0, 0, 0);
+  return now >= activation;
+}
+
 function dayKey(): string {
   const now = new Date();
   return `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;

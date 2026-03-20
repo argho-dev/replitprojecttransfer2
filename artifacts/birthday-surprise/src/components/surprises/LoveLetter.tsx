@@ -23,13 +23,13 @@ const PETALS = Array.from({ length: 18 }, (_, i) => ({
 }));
 
 type Stage = 'envelope' | 'scratch' | 'revealed';
-interface P { message: string; onReveal?: () => void }
+interface P { message: string; onReveal?: () => void; onScratchDone?: () => void }
 
 const POLAROID_KF = `
 @keyframes polaroidFloat{0%,100%{transform:translateY(0px)}50%{transform:translateY(-5px)}}
 `;
 
-export default function LoveLetter({ message, onReveal }: P) {
+export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
   const [stage, setStage]           = useState<Stage>('envelope');
   const [scratchPct, setScratchPct] = useState(0);
 
@@ -76,6 +76,10 @@ export default function LoveLetter({ message, onReveal }: P) {
       window.removeEventListener('touchend',  onUp);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (stage === 'revealed') onScratchDone?.();
+  }, [stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── ENVELOPE click ──────────────────────────────────── */
   const openEnvelope = () => {

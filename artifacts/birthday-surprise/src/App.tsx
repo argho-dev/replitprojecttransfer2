@@ -1,7 +1,8 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { isBirthday, isBirthdayEve } from './lib/surprises';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { isBirthday, isBirthdayEve, isBirthdayFinalDay } from './lib/surprises';
 import Entry from './pages/Entry';
 import AccessGate from './components/AccessGate';
+import MusicPlayer from './components/MusicPlayer';
 
 const DailySurprise  = lazy(() => import('./pages/DailySurprise'));
 const BirthdayCake   = lazy(() => import('./components/BirthdayCake'));
@@ -26,6 +27,7 @@ export default function App() {
     : 'gate';
 
   const [screen, setScreen] = useState<Screen>(initialScreen);
+  const cakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleAccessGranted = () => {
     setScreen('entry');
@@ -33,13 +35,21 @@ export default function App() {
 
   const handleContinue = () => {
     if (isBirthday()) {
-      // Birthday: go through the interactive cake first, then finale
       setScreen('cake');
     } else if (isBirthdayEve()) {
       setScreen('cake');
     } else {
       setScreen('surprise');
     }
+  };
+
+  const handleGoToCake = () => {
+    if (!isBirthdayFinalDay()) return;
+    if (cakeTimerRef.current) return;
+    cakeTimerRef.current = setTimeout(() => {
+      setScreen('cake');
+      cakeTimerRef.current = null;
+    }, 3000);
   };
 
   useEffect(() => {
@@ -49,6 +59,8 @@ export default function App() {
     document.head.appendChild(link);
     return () => { document.head.removeChild(link); };
   }, []);
+
+  const showMusic = screen === 'surprise' || screen === 'cake' || screen === 'finale';
 
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ background: '#000' }}>
@@ -62,7 +74,7 @@ export default function App() {
 
       {screen === 'surprise' && (
         <Suspense fallback={<LoadingScreen />}>
-          <DailySurprise />
+          <DailySurprise onGoToCake={handleGoToCake} />
         </Suspense>
       )}
 
@@ -77,6 +89,8 @@ export default function App() {
           <BirthdayFinale />
         </Suspense>
       )}
+
+      {showMusic && <MusicPlayer />}
     </div>
   );
 }
