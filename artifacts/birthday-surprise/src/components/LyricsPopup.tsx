@@ -120,12 +120,11 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
     const lyric = getActiveLyric(currentTime, lyrics);
     if (!lyric) return;
 
-    const isSame    = lyric.text === lastTextRef.current;
-    const timeDelta = Math.abs(currentTime - lastTimeRef.current);
-    if (isSame && timeDelta < 1) return;
+    /* Only fire when the active lyric LINE actually changes */
+    if (lyric.text === lastTextRef.current) return;
 
     lastTextRef.current = lyric.text;
-    lastTimeRef.current  = currentTime;
+    lastTimeRef.current = currentTime;
 
     /* Split into words, filter stop words, cap per lyric trigger */
     const allWords = lyric.text.split(/\s+/).filter(Boolean);
