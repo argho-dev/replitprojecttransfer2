@@ -1,0 +1,80 @@
+You are an expert frontend developer.
+
+Fix the existing implementation. The current behavior is incorrect. Follow the instructions EXACTLY.
+
+-----------------------------------
+1. ENVELOPE FLOW (IMPORTANT FIX)
+-----------------------------------
+
+- KEEP the envelope UI as it was originally (DO NOT REMOVE IT).
+- User first sees the envelope.
+- On clicking the envelope:
+  → The letter page opens (same as before)
+
+NOW APPLY SCRATCH EFFECT ONLY ON THE LETTER PAGE:
+
+- The letter content should be hidden under a scratch layer.
+- User scratches to reveal the message.
+
+After scratching:
+
+- Once ~90–100% is revealed:
+  → Remove the scratch layer completely
+  → Show the normal message page EXACTLY like before (no blur, no overlay)
+  → Do NOT ask user to scratch again
+
+- Scratch should:
+  • Work with mouse (desktop drag)
+  • Work with touch (mobile finger swipe)
+  • Be smooth and realistic
+
+-----------------------------------
+2. LYRICS POP ANIMATION (FIX IT PROPERLY)
+-----------------------------------
+
+- While a song is playing:
+  → Show small lyric snippets (2–5 words)
+
+- Requirements:
+  • Random screen positions  
+  • Smooth fade-in and fade-out  
+  • Slight floating movement  
+  • Auto disappear after 2–3 seconds  
+
+- Must continuously appear while song plays
+- Must STOP when music pauses
+- Must CHANGE when song changes
+
+- Keep it clean and minimal (no clutter)
+
+-----------------------------------
+3. BACKGROUND RANDOM (DO NOT BREAK)
+-----------------------------------
+
+- Background MUST:
+  • Change randomly on EVERY reload  
+  • NOT depend on date/time  
+  • Feel different each time  
+
+- If broken, FIX it.
+- Do not remove existing logic, only correct it if needed.
+
+-----------------------------------
+STRICT RULES
+-----------------------------------
+
+- Do NOT:
+  • Remove envelope  
+  • Change UI design  
+  • Modify layout  
+  • Break music player  
+
+- Only FIX and ADD required behavior
+
+-----------------------------------
+OUTPUT FORMAT
+-----------------------------------
+
+- Provide exact code changes
+- Mention file names clearly
+- Keep implementation simple and working
