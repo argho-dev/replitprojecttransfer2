@@ -222,7 +222,7 @@ export default function LoveLetter({ message, onReveal }: P) {
       {/* ── POLAROID (above music player, fixed) ── */}
       <div style={{
         position: 'fixed',
-        bottom: 'calc(5rem + 183px)',
+        bottom: 'calc(5rem + 148px)',
         right: '1.25rem',
         zIndex: 49,
         pointerEvents: 'none',
