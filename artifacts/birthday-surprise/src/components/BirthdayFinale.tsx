@@ -216,32 +216,29 @@ export default function BirthdayFinale() {
                   </div>
 
                   {/* Caption ribbon */}
-                  <div
-                    style={{
-                      flexShrink: 0,
-                      marginTop: 4,
-                      textAlign: 'center',
-                    }}
-                  >
-                    <span
-                      className="shimmer-text"
-                      style={{
-                        display: 'inline-block',
-                        background: 'linear-gradient(135deg,rgba(255,121,198,0.18),rgba(189,147,249,0.18))',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255,121,198,0.35)',
-                        borderRadius: 20,
-                        padding: '2px 10px 3px',
-                        fontFamily: "'Georgia', serif",
-                        fontStyle: 'italic',
-                        fontWeight: 700,
-                        fontSize: 'clamp(0.48rem, 1.1vw, 0.72rem)',
-                        letterSpacing: '0.05em',
-                      }}
-                    >
-                      pretty she ✨
-                    </span>
+                  <div style={{ flexShrink: 0, marginTop: 4, textAlign: 'center' }}>
+                    <div style={{
+                      display: 'inline-block',
+                      background: 'linear-gradient(135deg,rgba(255,121,198,0.18),rgba(189,147,249,0.18))',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255,121,198,0.35)',
+                      borderRadius: 20,
+                      padding: '2px 10px 3px',
+                    }}>
+                      <span
+                        className="shimmer-text"
+                        style={{
+                          fontFamily: "'Georgia', serif",
+                          fontStyle: 'italic',
+                          fontWeight: 700,
+                          fontSize: 'clamp(0.48rem, 1.1vw, 0.72rem)',
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        pretty she ✨
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
