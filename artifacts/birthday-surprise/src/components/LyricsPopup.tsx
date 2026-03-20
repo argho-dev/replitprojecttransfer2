@@ -65,11 +65,21 @@ const CSS = `
 }
 `;
 
-const IN_MS   = 420;
-const HOLD_MS = 2800;
-const OUT_MS  = 600;
-const WORD_STAGGER_MS = 220; // delay between each word in a line
-const MAX_WORDS_PER_LINE = 5; // cap so screen doesn't flood
+const IN_MS   = 450;
+const HOLD_MS = 3200;
+const OUT_MS  = 700;
+const MAX_WORDS_PER_LINE = 2;  // only 2 words per lyric trigger
+const WORD_STAGGER_MS   = 300; // gap between the 2 words
+
+/* Words too small/common to show alone */
+const STOP_WORDS = new Set([
+  'a','an','the','and','or','but','in','on','at','to','for','of','with',
+  'i','my','me','you','your','we','our','it','its','is','are','was','were',
+  'be','been','so','up','by','if','as','not','do','did','had','has','have',
+  'that','this','will','would','could','should','may','might','just','than',
+  'then','when','what','who','how','all','from','they','them','their','her',
+  'him','his','she','he','no','yes','oh','into',
+]);
 
 /* ─── Component ──────────────────────────────────────────────── */
 interface Props {
@@ -117,9 +127,12 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
     lastTextRef.current = lyric.text;
     lastTimeRef.current  = currentTime;
 
-    /* Split into individual words, filter blanks, cap per line */
+    /* Split into words, filter stop words, cap per lyric trigger */
     const allWords = lyric.text.split(/\s+/).filter(Boolean);
-    const wordList = allWords.slice(0, MAX_WORDS_PER_LINE);
+    const meaningful = allWords.filter(w => !STOP_WORDS.has(w.toLowerCase().replace(/[^a-z]/g, '')));
+    /* Fall back to all words if nothing meaningful remains */
+    const pool = meaningful.length > 0 ? meaningful : allWords;
+    const wordList = pool.slice(0, MAX_WORDS_PER_LINE);
 
     wordList.forEach((word, wi) => {
       const delay    = wi * WORD_STAGGER_MS;
