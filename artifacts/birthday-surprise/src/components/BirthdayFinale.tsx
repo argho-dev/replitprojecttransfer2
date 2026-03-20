@@ -223,10 +223,10 @@ export default function BirthdayFinale() {
                     fontFamily: "'Caveat', cursive",
                     fontWeight: 700,
                     fontSize: 'clamp(0.7rem, 1.6vw, 1rem)',
-                    color: '#1a1a1a',
+                    color: '#c2185b',
                     letterSpacing: '0.03em',
                   }}>
-                    Pretty She
+                    {p.msg}
                   </div>
                 </div>
               </div>
