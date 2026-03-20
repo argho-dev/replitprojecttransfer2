@@ -1,0 +1,108 @@
+You are a frontend developer. Fix the lyrics system and styling properly.
+
+-----------------------------------
+1. LYRICS CONTENT FIX (IMPORTANT)
+-----------------------------------
+
+- Current issue: lyrics are incorrect or not matching songs.
+
+Fix:
+
+- Each song MUST have its own correct lyric snippets.
+
+- Create a structured mapping like:
+
+const lyricsMap = {
+  "song-name": [
+    "lyric line 1",
+    "lyric line 2",
+    "lyric line 3"
+  ]
+}
+
+- Use ONLY relevant, meaningful, short snippets (2–5 words)
+- Do NOT mix lyrics between songs
+- When song changes → switch to correct lyrics instantly
+
+- If exact full lyrics are not available:
+  → manually define correct key lines for each song
+
+-----------------------------------
+2. LYRICS DISPLAY LOGIC
+-----------------------------------
+
+- Show one lyric at a time
+- Randomly pick from that song’s lyrics array
+- Appear every 1.5–3 seconds
+
+- MUST STOP when music is paused
+- MUST RESET when song changes
+
+-----------------------------------
+3. LYRICS COLOR FIX (VERY IMPORTANT)
+-----------------------------------
+
+Current issue: text blends with background.
+
+Fix:
+
+- Use dynamic styling that ensures visibility on ANY background
+
+Apply:
+
+• High contrast text color (AI can decide best based on background)
+• Add text-shadow for glow effect
+• Slight blur glow behind text
+
+Example styling:
+
+- color: white OR light pink depending on background
+- text-shadow:
+    0 0 8px rgba(255,255,255,0.8),
+    0 0 16px rgba(255,105,180,0.6)
+
+- Optional:
+    backdrop blur or semi-transparent background
+
+-----------------------------------
+4. VISIBILITY ENHANCEMENT (REQUIRED)
+-----------------------------------
+
+To ensure lyrics are always readable:
+
+- Add one of these:
+  • subtle dark overlay behind text
+  OR
+  • gradient pill background
+  OR
+  • soft glowing bubble
+
+Example:
+
+background: rgba(0,0,0,0.3)
+padding: 6px 12px
+border-radius: 12px
+
+-----------------------------------
+5. ANIMATION (KEEP CLEAN)
+-----------------------------------
+
+- Fade in + fade out
+- Slight upward floating movement
+- No clutter on screen
+
+-----------------------------------
+STRICT RULES
+-----------------------------------
+
+- Do NOT change UI layout
+- Do NOT break music player
+- Only fix lyrics logic and styling
+
+-----------------------------------
+OUTPUT
+-----------------------------------
+
+- Provide updated code
+- Mention which file to edit
+- Keep it clean and working

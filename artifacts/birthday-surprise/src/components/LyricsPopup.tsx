@@ -6,7 +6,6 @@ interface LyricBubble {
   text: string;
   x: number;
   y: number;
-  driftX: number;
   driftY: number;
   fontSize: number;
 }
@@ -19,29 +18,36 @@ interface Props {
 let _id = 0;
 
 export default function LyricsPopup({ playing, song }: Props) {
-  const [bubbles, setBubbles] = useState<LyricBubble[]>([]);
-  /* tracks opacity per bubble id separately so we don't re-render the whole list */
+  const [bubbles, setBubbles]   = useState<LyricBubble[]>([]);
   const [opacities, setOpacities] = useState<Record<number, number>>({});
 
-  const activeRef    = useRef(false);
-  const timeoutsRef  = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const lyricIdxRef  = useRef(0);
+  const activeRef   = useRef(false);
+  const timerRef    = useRef<ReturnType<typeof setTimeout>[]>([]);
 
+  /* ---------- helpers ---------------------------------------- */
   const addTimeout = (fn: () => void, ms: number) => {
     const t = setTimeout(fn, ms);
-    timeoutsRef.current.push(t);
-    return t;
+    timerRef.current.push(t);
   };
 
   const clearAll = () => {
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
+    timerRef.current.forEach(clearTimeout);
+    timerRef.current = [];
   };
 
-  useEffect(() => {
-    lyricIdxRef.current = 0;
-  }, [song.filename]);
+  /* pick a random lyric from the current song (never the same twice in a row) */
+  const lastPickRef = useRef(-1);
+  const pickLyric = (lyrics: string[]) => {
+    if (lyrics.length === 0) return '';
+    if (lyrics.length === 1) return lyrics[0];
+    let idx: number;
+    do { idx = Math.floor(Math.random() * lyrics.length); }
+    while (idx === lastPickRef.current);
+    lastPickRef.current = idx;
+    return lyrics[idx];
+  };
 
+  /* ---------- main effect ------------------------------------- */
   useEffect(() => {
     if (!playing) {
       activeRef.current = false;
@@ -55,50 +61,46 @@ export default function LyricsPopup({ playing, song }: Props) {
     if (lyrics.length === 0) return;
 
     activeRef.current = true;
+    lastPickRef.current = -1;   // reset on song change
 
     const spawnNext = () => {
       if (!activeRef.current) return;
 
-      const id   = _id++;
-      const text = lyrics[lyricIdxRef.current % lyrics.length];
-      lyricIdxRef.current++;
+      const id       = _id++;
+      const text     = pickLyric(lyrics);
 
-      const x       = 8  + Math.random() * 74;
-      const y       = 12 + Math.random() * 66;
-      const driftX  = (Math.random() - 0.5) * 50;
-      const driftY  = -(18 + Math.random() * 28);
-      const fontSize = 0.82 + Math.random() * 0.5;
+      /* spawn anywhere across the screen, avoid edges */
+      const x        = 10 + Math.random() * 80;   // 10%–90%
+      const y        = 10 + Math.random() * 72;   // 10%–82%
+      const driftY   = -(20 + Math.random() * 30); // float upward
+      const fontSize = 0.78 + Math.random() * 0.46;
 
-      const bubble: LyricBubble = { id, text, x, y, driftX, driftY, fontSize };
+      const bubble: LyricBubble = { id, text, x, y, driftY, fontSize };
 
-      setBubbles(prev => [...prev.slice(-8), bubble]);
+      setBubbles(prev => [...prev.slice(-7), bubble]);
       setOpacities(prev => ({ ...prev, [id]: 0 }));
 
-      const lifetime   = 2200 + Math.random() * 1400;
-      const fadeIn     = 500;
-      const fadeOut    = 550;
+      const lifetime = 2400 + Math.random() * 1400;
+      const fadeIn   = 420;
+      const fadeOut  = 500;
 
-      /* fade in */
       addTimeout(() => {
         if (!activeRef.current) return;
         setOpacities(prev => ({ ...prev, [id]: 1 }));
       }, fadeIn);
 
-      /* fade out */
       addTimeout(() => {
         if (!activeRef.current) return;
         setOpacities(prev => ({ ...prev, [id]: 0 }));
       }, lifetime - fadeOut);
 
-      /* remove */
       addTimeout(() => {
         setBubbles(prev => prev.filter(b => b.id !== id));
         setOpacities(prev => { const c = { ...prev }; delete c[id]; return c; });
-      }, lifetime + 80);
+      }, lifetime + 100);
 
-      /* schedule next spawn */
-      const nextIn = 1500 + Math.random() * 1200;
-      addTimeout(spawnNext, nextIn);
+      /* next spawn: 1.5 – 2.8 s */
+      addTimeout(spawnNext, 1500 + Math.random() * 1300);
     };
 
     spawnNext();
@@ -116,12 +118,14 @@ export default function LyricsPopup({ playing, song }: Props) {
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, zIndex: 40,
-      pointerEvents: 'none', overflow: 'hidden',
+      position: 'fixed', inset: 0,
+      zIndex: 40,
+      pointerEvents: 'none',
+      overflow: 'hidden',
     }}>
       {bubbles.map(b => {
         const opacity = opacities[b.id] ?? 0;
-        const drifted = opacity > 0;
+        const risen   = opacity > 0;
         return (
           <div
             key={b.id}
@@ -129,17 +133,42 @@ export default function LyricsPopup({ playing, song }: Props) {
               position: 'absolute',
               left: `${b.x}%`,
               top:  `${b.y}%`,
-              transform: `translate(-50%, -50%) translate(${drifted ? b.driftX * 0.45 : 0}px, ${drifted ? b.driftY * 0.4 : 0}px)`,
+              transform: `translate(-50%, -50%) translateY(${risen ? b.driftY * 0.5 : 0}px)`,
               opacity,
-              transition: 'opacity 0.5s ease, transform 2.5s ease',
-              fontSize: `${b.fontSize}rem`,
-              fontStyle: 'italic',
-              fontWeight: 500,
-              color: 'rgba(255,255,255,0.9)',
-              textShadow: '0 0 20px rgba(255,121,198,0.95), 0 0 8px rgba(189,147,249,0.8)',
-              letterSpacing: '0.05em',
-              whiteSpace: 'nowrap',
-              userSelect: 'none',
+              transition: 'opacity 0.45s ease, transform 2.8s ease',
+
+              /* text */
+              fontSize:     `${b.fontSize}rem`,
+              fontStyle:    'italic',
+              fontWeight:   600,
+              color:        '#fff',
+              letterSpacing: '0.04em',
+              whiteSpace:   'nowrap',
+              userSelect:   'none',
+
+              /*
+               * Pill backdrop — guarantees readability on ANY background
+               * (dark, light, gradient, image)
+               */
+              background:   'rgba(0, 0, 0, 0.38)',
+              padding:      '5px 13px',
+              borderRadius: '999px',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+
+              /* glow on the text itself */
+              textShadow: [
+                '0 0 8px rgba(255,255,255,0.9)',
+                '0 0 18px rgba(255,121,198,0.75)',
+                '0 0 32px rgba(189,147,249,0.5)',
+              ].join(', '),
+
+              /* outer glow on the pill */
+              boxShadow: [
+                '0 0 12px rgba(255,121,198,0.25)',
+                '0 2px 8px rgba(0,0,0,0.35)',
+              ].join(', '),
             }}
           >
             {b.text}
