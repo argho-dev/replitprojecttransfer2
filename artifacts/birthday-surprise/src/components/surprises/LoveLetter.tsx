@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 
 const KF = `
@@ -14,185 +14,170 @@ const PETALS = Array.from({ length: 18 }, (_, i) => ({
   rot: `${(i % 2 ? 1 : -1) * (180 + i * 30)}deg`,
 }));
 
-const SCRATCH_R = 36; // bigger = easier to scratch
-
 type Stage = 'envelope' | 'scratch' | 'revealed';
-
 interface P { message: string; onReveal?: () => void }
 
 export default function LoveLetter({ message, onReveal }: P) {
-  const [stage, setStage]         = useState<Stage>('envelope');
+  const [stage, setStage]           = useState<Stage>('envelope');
   const [scratchPct, setScratchPct] = useState(0);
-
   const envelopeRef = useRef<HTMLDivElement>(null);
   const canvasRef   = useRef<HTMLCanvasElement>(null);
-  const stageRef    = useRef<Stage>('envelope'); // mirror for native listeners
 
-  // keep stageRef in sync
-  useEffect(() => { stageRef.current = stage; }, [stage]);
-
-  /* ──────────────────────────────────────────────────────
-     Envelope click  →  GSAP  →  scratch stage
-  ────────────────────────────────────────────────────── */
+  /* ── ENVELOPE → open letter ──────────────────────────── */
   const openEnvelope = () => {
-    if (stageRef.current !== 'envelope') return;
+    if (stage !== 'envelope') return;
     const env = envelopeRef.current;
     if (!env) return;
     gsap.timeline()
       .to(env, { scale: 1.12, rotation: 8,  duration: .18, ease: 'power1.out' })
       .to(env, { scale: .85,  rotation: -5, duration: .13 })
-      .to(env, { scale: 0, opacity: 0, rotation: 15, y: -30, duration: .35, ease: 'back.in(1.4)',
-        onComplete: () => setStage('scratch'),
-      });
+      .to(env, { scale: 0, opacity: 0, rotation: 15, y: -30, duration: .35,
+        ease: 'back.in(1.4)', onComplete: () => setStage('scratch') });
   };
 
-  /* ──────────────────────────────────────────────────────
-     Canvas init + native event listeners
-     (runs whenever stage becomes 'scratch')
-  ────────────────────────────────────────────────────── */
-  useEffect(() => {
+  /* ── SCRATCH CANVAS SETUP + NATIVE EVENTS ────────────── */
+  /*
+   * useLayoutEffect fires synchronously after the canvas element is
+   * committed to the DOM – getBoundingClientRect() is guaranteed to
+   * return real dimensions at that point (no RAF needed).
+   */
+  useLayoutEffect(() => {
     if (stage !== 'scratch') return;
 
-    // wait one frame so the canvas is in the DOM and has layout
-    const raf = requestAnimationFrame(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-      /* ── size the canvas to match its CSS rendered size ── */
-      const rect = canvas.getBoundingClientRect();
-      canvas.width  = Math.round(rect.width);
-      canvas.height = Math.round(rect.height);
+    /* ── 1. Size the canvas with DPR so it's crisp on retina ── */
+    const rect = canvas.getBoundingClientRect();
+    const dpr  = window.devicePixelRatio || 1;
 
-      /* ── draw the cover layer ── */
-      const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#d81b60';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    canvas.width  = Math.round(rect.width  * dpr);
+    canvas.height = Math.round(rect.height * dpr);
 
-      // shimmer blobs
-      ctx.fillStyle = 'rgba(255,255,255,0.09)';
-      for (let i = 0; i < 7; i++) {
-        ctx.beginPath();
-        ctx.arc(
-          Math.random() * canvas.width,
-          Math.random() * canvas.height,
-          35 + Math.random() * 55, 0, Math.PI * 2,
-        );
-        ctx.fill();
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+    ctx.scale(dpr, dpr);          // from here on draw in CSS px
+
+    /* ── 2. Paint the opaque cover layer ── */
+    ctx.fillStyle = '#d81b60';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    // shimmer blobs
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    for (let i = 0; i < 8; i++) {
+      ctx.beginPath();
+      ctx.arc(Math.random() * rect.width, Math.random() * rect.height,
+        30 + Math.random() * 60, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // hint text
+    ctx.textAlign = 'center';
+    ctx.font      = 'bold 15px Georgia, serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.72)';
+    ctx.fillText('✦ scratch to reveal ✦', rect.width / 2, rect.height / 2 - 10);
+    ctx.font      = '12px Georgia, serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.42)';
+    ctx.fillText('hold & drag · swipe with finger', rect.width / 2, rect.height / 2 + 14);
+
+    /* ── 3. Scratch logic ── */
+    let drawing = false;
+    let done    = false;
+    let lastCheck = 0;
+
+    /** clientX/Y → CSS-pixel position inside the canvas */
+    const toXY = (clientX: number, clientY: number) => {
+      const r = canvas.getBoundingClientRect();
+      return { x: clientX - r.left, y: clientY - r.top };
+    };
+
+    const scratchAt = (x: number, y: number) => {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 40, 0, Math.PI * 2);   // 40 CSS-px brush
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    };
+
+    const checkReveal = () => {
+      if (done) return;
+      const now = Date.now();
+      if (now - lastCheck < 200) return;   // throttle to ~5 checks/sec
+      lastCheck = now;
+
+      // getImageData works in physical pixels (canvas.width × canvas.height)
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let cleared = 0;
+      for (let i = 3; i < data.length; i += 4) {
+        if (data[i] < 128) cleared++;
       }
+      const pct = Math.round((cleared / (data.length / 4)) * 100);
+      setScratchPct(pct);
 
-      // instruction text
-      ctx.textAlign    = 'center';
-      ctx.font         = 'bold 15px Georgia, serif';
-      ctx.fillStyle    = 'rgba(255,255,255,0.72)';
-      ctx.fillText('✦ scratch to reveal ✦', canvas.width / 2, canvas.height / 2 - 10);
-      ctx.font         = '12px Georgia, serif';
-      ctx.fillStyle    = 'rgba(255,255,255,0.45)';
-      ctx.fillText('hold & drag  •  or swipe with finger', canvas.width / 2, canvas.height / 2 + 14);
+      if (pct >= 65) {
+        done = true;
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        setStage('revealed');
+      }
+    };
 
-      /* ── scratch helpers ── */
-      let drawing = false;
-      let done    = false;
+    /* ── 4. Native DOM event listeners ── */
+    const onMouseDown = (e: MouseEvent) => {
+      e.preventDefault();
+      drawing = true;
+      const { x, y } = toXY(e.clientX, e.clientY);
+      scratchAt(x, y);
+    };
+    const onMouseMove = (e: MouseEvent) => {
+      if (!drawing) return;
+      const { x, y } = toXY(e.clientX, e.clientY);
+      scratchAt(x, y);
+      checkReveal();
+    };
+    const onMouseUp = () => {
+      if (!drawing) return;
+      drawing = false;
+      checkReveal();
+    };
 
-      const toCanvas = (clientX: number, clientY: number) => {
-        const r = canvas.getBoundingClientRect();
-        const sx = canvas.width  / r.width;
-        const sy = canvas.height / r.height;
-        return { x: (clientX - r.left) * sx, y: (clientY - r.top) * sy };
-      };
+    const onTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      drawing = true;
+      const t = e.touches[0];
+      const { x, y } = toXY(t.clientX, t.clientY);
+      scratchAt(x, y);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      if (!drawing) return;
+      const t = e.touches[0];
+      const { x, y } = toXY(t.clientX, t.clientY);
+      scratchAt(x, y);
+      checkReveal();
+    };
+    const onTouchEnd = () => {
+      drawing = false;
+      checkReveal();
+    };
 
-      const scratchAt = (cx: number, cy: number) => {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.beginPath();
-        ctx.arc(cx, cy, SCRATCH_R, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalCompositeOperation = 'source-over';
-      };
+    canvas.addEventListener('mousedown',  onMouseDown);
+    window.addEventListener('mousemove',  onMouseMove);
+    window.addEventListener('mouseup',    onMouseUp);
+    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+    canvas.addEventListener('touchmove',  onTouchMove,  { passive: false });
+    canvas.addEventListener('touchend',   onTouchEnd);
 
-      const checkDone = () => {
-        if (done) return;
-        const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        let cleared = 0;
-        for (let i = 3; i < pixels.length; i += 4) {
-          if (pixels[i] < 128) cleared++;
-        }
-        const pct = Math.round((cleared / (pixels.length / 4)) * 100);
-        setScratchPct(pct);
-        if (pct >= 60) {
-          done = true;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          setStage('revealed');
-        }
-      };
-
-      /* ── mouse ── */
-      const onMouseDown = (e: MouseEvent) => {
-        e.preventDefault();
-        drawing = true;
-        const { x, y } = toCanvas(e.clientX, e.clientY);
-        scratchAt(x, y);
-      };
-      const onMouseMove = (e: MouseEvent) => {
-        if (!drawing) return;
-        const { x, y } = toCanvas(e.clientX, e.clientY);
-        scratchAt(x, y);
-        checkDone();
-      };
-      const onMouseUp = () => {
-        drawing = false;
-        checkDone();
-      };
-
-      /* ── touch ── */
-      const onTouchStart = (e: TouchEvent) => {
-        e.preventDefault();
-        drawing = true;
-        const t = e.touches[0];
-        const { x, y } = toCanvas(t.clientX, t.clientY);
-        scratchAt(x, y);
-      };
-      const onTouchMove = (e: TouchEvent) => {
-        e.preventDefault();
-        if (!drawing) return;
-        const t = e.touches[0];
-        const { x, y } = toCanvas(t.clientX, t.clientY);
-        scratchAt(x, y);
-        checkDone();
-      };
-      const onTouchEnd = () => {
-        drawing = false;
-        checkDone();
-      };
-
-      /* attach — mousemove/up on window so dragging outside card works */
-      canvas.addEventListener('mousedown',  onMouseDown);
-      window.addEventListener('mousemove',  onMouseMove);
-      window.addEventListener('mouseup',    onMouseUp);
-      canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-      canvas.addEventListener('touchmove',  onTouchMove,  { passive: false });
-      canvas.addEventListener('touchend',   onTouchEnd);
-
-      /* store detach fn on the canvas element itself for cleanup */
-      (canvas as any)._cleanup = () => {
-        canvas.removeEventListener('mousedown',  onMouseDown);
-        window.removeEventListener('mousemove',  onMouseMove);
-        window.removeEventListener('mouseup',    onMouseUp);
-        canvas.removeEventListener('touchstart', onTouchStart);
-        canvas.removeEventListener('touchmove',  onTouchMove);
-        canvas.removeEventListener('touchend',   onTouchEnd);
-      };
-    });
-
+    /* ── 5. Cleanup — capture canvas locally so ref is still valid ── */
     return () => {
-      cancelAnimationFrame(raf);
-      const canvas = canvasRef.current;
-      if (canvas && (canvas as any)._cleanup) (canvas as any)._cleanup();
+      canvas.removeEventListener('mousedown',  onMouseDown);
+      window.removeEventListener('mousemove',  onMouseMove);
+      window.removeEventListener('mouseup',    onMouseUp);
+      canvas.removeEventListener('touchstart', onTouchStart);
+      canvas.removeEventListener('touchmove',  onTouchMove);
+      canvas.removeEventListener('touchend',   onTouchEnd);
     };
   }, [stage]);
 
-  /* ──────────────────────────────────────────────────────
-     RENDER
-  ────────────────────────────────────────────────────── */
+  /* ── RENDER ──────────────────────────────────────────── */
   return (
     <div style={{
       position: 'relative', width: '100%', height: '100%', overflow: 'hidden',
@@ -244,13 +229,13 @@ export default function LoveLetter({ message, onReveal }: P) {
         </div>
       )}
 
-      {/* ── LETTER CARD (scratch + revealed) ── */}
+      {/* ── LETTER CARD — both scratch + revealed stages ── */}
       {(stage === 'scratch' || stage === 'revealed') && (
         <div style={{ position: 'relative', width: 'min(420px, 92vw)', zIndex: 10 }}>
 
-          {/* Letter content */}
+          {/* Letter content (always visible underneath) */}
           <div style={{
-            background: 'rgba(255,255,255,.88)', backdropFilter: 'blur(16px)',
+            background: 'rgba(255,255,255,.92)', backdropFilter: 'blur(16px)',
             border: '1px solid rgba(255,121,198,.4)', borderRadius: 20,
             padding: 'clamp(20px,5vw,32px)',
             boxShadow: '0 8px 48px rgba(200,80,150,.25)',
@@ -290,28 +275,32 @@ export default function LoveLetter({ message, onReveal }: P) {
             )}
           </div>
 
-          {/* Scratch canvas overlay — native events wired in useEffect */}
+          {/* ── Scratch overlay canvas ── */}
           {stage === 'scratch' && (
             <>
               <canvas
                 ref={canvasRef}
                 style={{
-                  position: 'absolute', inset: 0,
-                  width: '100%', height: '100%',
+                  position: 'absolute',
+                  top: 0, left: 0,
+                  width: '100%',
+                  height: '100%',
                   borderRadius: 20,
                   cursor: 'crosshair',
                   zIndex: 20,
                   touchAction: 'none',
                   display: 'block',
+                  userSelect: 'none',
                 }}
               />
-              {scratchPct > 0 && (
+              {scratchPct > 2 && (
                 <div style={{
-                  position: 'absolute', bottom: -28, left: 0, right: 0,
+                  position: 'absolute', bottom: -30, left: 0, right: 0,
                   textAlign: 'center', fontSize: '0.72rem',
-                  color: 'rgba(194,24,91,0.8)', pointerEvents: 'none',
+                  color: 'rgba(194,24,91,0.85)', pointerEvents: 'none',
+                  fontStyle: 'italic',
                 }}>
-                  {scratchPct < 45
+                  {scratchPct < 50
                     ? `${scratchPct}% revealed — keep scratching!`
                     : 'Almost there…'}
                 </div>

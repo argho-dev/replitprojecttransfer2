@@ -1,0 +1,161 @@
+You are a senior frontend engineer. The current scratch implementation is NOT working. Fix it properly.
+
+-----------------------------------
+GOAL
+-----------------------------------
+
+Correct flow:
+
+1. Show ENVELOPE (unchanged)
+2. On click → open LETTER PAGE
+3. Letter content is hidden under scratch layer
+4. User scratches → reveals content
+5. When ~85–90% scratched:
+   → Remove scratch canvas
+   → Show normal message (same as original)
+   → Do NOT allow scratching again
+
+-----------------------------------
+CRITICAL RULES
+-----------------------------------
+
+- DO NOT remove envelope
+- DO NOT change UI design or layout
+- Scratch effect ONLY on letter content area
+
+-----------------------------------
+IMPLEMENTATION GUIDANCE (IMPORTANT)
+-----------------------------------
+
+⚠️ React synthetic events are unreliable for canvas dragging.
+Use NATIVE DOM EVENTS via useEffect.
+
+-----------------------------------
+CANVAS SETUP (FOLLOW EXACTLY)
+-----------------------------------
+
+- Canvas must match parent size using getBoundingClientRect()
+
+- Also handle devicePixelRatio:
+
+Example:
+const rect = canvas.getBoundingClientRect()
+const dpr = window.devicePixelRatio || 1
+
+canvas.width = rect.width * dpr
+canvas.height = rect.height * dpr
+
+const ctx = canvas.getContext("2d")
+ctx.scale(dpr, dpr)
+
+- Initialize canvas inside requestAnimationFrame to ensure layout is ready
+
+-----------------------------------
+INITIAL COVER (MANDATORY)
+-----------------------------------
+
+Fill full canvas before scratching:
+
+ctx.fillStyle = "#ff69b4"   // or same theme color
+ctx.fillRect(0, 0, rect.width, rect.height)
+
+-----------------------------------
+SCRATCH EFFECT (CORE LOGIC)
+-----------------------------------
+
+Use:
+
+ctx.globalCompositeOperation = "destination-out"
+
+Draw circle on drag:
+
+ctx.beginPath()
+ctx.arc(x, y, 40, 0, Math.PI * 2)
+ctx.fill()
+
+-----------------------------------
+COORDINATE FIX (VERY IMPORTANT)
+-----------------------------------
+
+Always calculate position like this:
+
+const rect = canvas.getBoundingClientRect()
+const x = clientX - rect.left
+const y = clientY - rect.top
+
+-----------------------------------
+EVENT SYSTEM (STRICT)
+-----------------------------------
+
+Use native listeners:
+
+- mousedown → start drawing
+- mousemove (on window) → draw
+- mouseup (on window) → stop
+
+- touchstart / touchmove / touchend also required
+
+IMPORTANT:
+canvas.addEventListener("touchmove", handler, { passive: false })
+
+-----------------------------------
+REVEAL DETECTION
+-----------------------------------
+
+Use getImageData to detect cleared area:
+
+Example approach:
+- Sample pixels
+- Count transparent pixels
+- If > 85% cleared → trigger reveal
+
+Then:
+→ remove canvas
+→ show clean message
+
+-----------------------------------
+PERFORMANCE HINT
+-----------------------------------
+
+- Add:
+const ctx = canvas.getContext("2d", { willReadFrequently: true })
+
+- Do NOT check pixels on every frame (throttle it)
+
+-----------------------------------
+LYRICS POP ANIMATION (FIX ALSO)
+-----------------------------------
+
+- While music is playing:
+  • Show small lyric snippets (2–5 words)
+  • Random positions
+  • Fade in/out + slight float
+  • Appear every 1.5–3 sec
+
+- MUST STOP when paused
+- MUST CHANGE when song changes
+
+Implementation hint:
+- Use setInterval + state
+- Use absolute positioned elements
+
+-----------------------------------
+BACKGROUND RANDOM (FIX IF BROKEN)
+-----------------------------------
+
+- On every reload:
+  → randomly select background from array
+
+Example:
+const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)]
+
+- Do NOT depend on date/time
+
+-----------------------------------
+OUTPUT
+-----------------------------------
+
+- Provide FULL working React component code
+- Mention which file to edit
+- No pseudo code
+- Must work on desktop + mobile
