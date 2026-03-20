@@ -1,0 +1,106 @@
+You are a senior frontend engineer. The scratch feature is NOT working. Fix it properly.
+
+-----------------------------------
+EXPECTED BEHAVIOR
+-----------------------------------
+
+DESKTOP:
+- User presses LEFT MOUSE BUTTON and holds
+- Moves mouse → scratching happens
+- Releasing mouse → stop scratching
+
+MOBILE:
+- User touches screen and holds
+- Moves finger → scratching happens
+- Lifting finger → stop scratching
+
+-----------------------------------
+CRITICAL REQUIREMENTS
+-----------------------------------
+
+- MUST use native DOM events (NOT React synthetic events)
+
+- REQUIRED EVENTS:
+  • mousedown → start drawing
+  • mousemove (on window) → draw
+  • mouseup (on window) → stop
+
+  • touchstart → start
+  • touchmove → draw
+  • touchend → stop
+
+- touchmove MUST use:
+  { passive: false }
+
+-----------------------------------
+CANVAS SETUP (FIX PROPERLY)
+-----------------------------------
+
+const rect = canvas.getBoundingClientRect()
+const dpr = window.devicePixelRatio || 1
+
+canvas.width = rect.width * dpr
+canvas.height = rect.height * dpr
+
+const ctx = canvas.getContext("2d", { willReadFrequently: true })
+ctx.scale(dpr, dpr)
+
+-----------------------------------
+IMPORTANT: PREVENT DEFAULT SCROLL
+-----------------------------------
+
+Inside touchmove:
+e.preventDefault()
+
+-----------------------------------
+SCRATCH LOGIC
+-----------------------------------
+
+ctx.globalCompositeOperation = "destination-out"
+
+ctx.beginPath()
+ctx.arc(x, y, 40, 0, Math.PI * 2)
+ctx.fill()
+
+-----------------------------------
+COORDINATES (VERY IMPORTANT)
+-----------------------------------
+
+For mouse:
+x = e.clientX - rect.left
+y = e.clientY - rect.top
+
+For touch:
+x = e.touches[0].clientX - rect.left
+y = e.touches[0].clientY - rect.top
+
+-----------------------------------
+COMMON BUG FIXES (MANDATORY)
+-----------------------------------
+
+- If scratching is not visible:
+  → Ensure canvas is filled BEFORE scratching
+
+ctx.fillStyle = "#ff69b4"
+ctx.fillRect(0, 0, rect.width, rect.height)
+
+- Ensure canvas is ABOVE the message (z-index)
+
+- Ensure pointer-events is enabled
+
+-----------------------------------
+FINAL RESULT
+-----------------------------------
+
+- Scratch must work:
+  ✔ Click + hold + drag (desktop)
+  ✔ Touch + move (mobile)
+
+- No lag, no broken interaction
+
+-----------------------------------
+OUTPUT
+-----------------------------------
+
+- Provide full working component
+- No pseudo code
