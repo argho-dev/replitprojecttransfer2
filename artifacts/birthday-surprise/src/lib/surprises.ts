@@ -109,25 +109,15 @@ export function getTodaySurpriseIndex(): number {
 }
 
 /**
- * Returns 2 messages for today.
- * - Stable within a day (same messages all day).
- * - Strict no-repeat: once a message is shown it is never shown again
- *   until all 20 have been used (then cycles).
+ * Returns 2 fresh messages on every call.
+ * Strict no-repeat: once a message is shown it is never shown again
+ * until all 20 have been used (full cycle), then resets.
+ *
+ * DailySurprise stores the result in useState so it stays stable
+ * within a single session but refreshes on every page reload.
  */
 export function getTodayMessages(): string[] {
   if (isBirthday()) return BIRTHDAY_MESSAGES;
-
-  const key = dayKey();
-
-  // Return today's cached messages if already chosen (stable within a day)
-  const storedDate = localStorage.getItem('bday_msgDate');
-  const storedMsgs = localStorage.getItem('bday_msgTexts');
-  if (storedDate === key && storedMsgs) {
-    try {
-      const parsed = JSON.parse(storedMsgs);
-      if (Array.isArray(parsed) && parsed.length === 2) return parsed;
-    } catch { /* ignore */ }
-  }
 
   // Strict permanent no-repeat tracking
   const usedRaw = localStorage.getItem('bday_msgsUsedPermanent');
@@ -148,8 +138,6 @@ export function getTodayMessages(): string[] {
 
   used.push(pick1, pick2);
   localStorage.setItem('bday_msgsUsedPermanent', JSON.stringify(used));
-  localStorage.setItem('bday_msgTexts', JSON.stringify(msgs));
-  localStorage.setItem('bday_msgDate',  key);
 
   return msgs;
 }

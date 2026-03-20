@@ -261,10 +261,11 @@ function MessagePopup({ messages, onClose }: { messages: string[]; onClose: () =
 }
 
 export default function DailySurprise() {
-  // Love letter envelope is always shown — pick fresh messages each load
+  // Love letter envelope is always shown
   const moduleName  = 'loveLetter';
   const SurpriseCmp = modules['loveLetter'];
-  const todayMsgs   = getTodayMessages();
+  // Pick fresh messages once per mount (new on every reload, no repeat)
+  const [todayMsgs] = useState<string[]>(() => getTodayMessages());
 
   const headerRef  = useRef<HTMLDivElement>(null);
   const footerRef  = useRef<HTMLDivElement>(null);
