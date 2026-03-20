@@ -38,13 +38,39 @@ export default function MusicPlayer() {
   const [song] = useState<Song>(() => getDailySong());
   const audioRef     = useRef<HTMLAudioElement>(null);
 
-  const [playing,     setPlaying]     = useState(false);
-  const [progress,    setProgress]    = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration,    setDuration]    = useState(0);
-  const [volume,      setVolume]      = useState(0.65);
-  const [loadError,   setLoadError]   = useState(false);
-  const [minimised,   setMinimised]   = useState(false);
+  const [playing,          setPlaying]          = useState(false);
+  const [progress,         setProgress]         = useState(0);
+  const [currentTime,      setCurrentTime]      = useState(0);
+  const [duration,         setDuration]         = useState(0);
+  const [volume,           setVolume]           = useState(0.65);
+  const [loadError,        setLoadError]        = useState(false);
+  const [minimised,        setMinimised]        = useState(false);
+  const [waitingForGesture, setWaitingForGesture] = useState(false);
+
+  const gestureListenerRef = useRef<(() => void) | null>(null);
+
+  const tryAutoplay = useCallback(async (audio: HTMLAudioElement) => {
+    try {
+      await audio.play();
+      setWaitingForGesture(false);
+    } catch {
+      setWaitingForGesture(true);
+      const onGesture = async () => {
+        try {
+          await audio.play();
+          setWaitingForGesture(false);
+        } catch {
+          // still blocked — user can press play manually
+        }
+        document.removeEventListener('click',     onGesture);
+        document.removeEventListener('touchstart', onGesture);
+        gestureListenerRef.current = null;
+      };
+      gestureListenerRef.current = onGesture;
+      document.addEventListener('click',     onGesture, { once: true });
+      document.addEventListener('touchstart', onGesture, { once: true });
+    }
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -55,12 +81,20 @@ export default function MusicPlayer() {
     setProgress(0);
     setCurrentTime(0);
     setDuration(0);
+    setWaitingForGesture(false);
+
+    if (gestureListenerRef.current) {
+      document.removeEventListener('click',     gestureListenerRef.current);
+      document.removeEventListener('touchstart', gestureListenerRef.current);
+      gestureListenerRef.current = null;
+    }
 
     audio.volume = volume;
 
     const onLoadedMeta = () => {
       setDuration(audio.duration);
       setLoadError(false);
+      tryAutoplay(audio);
     };
     const onTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
@@ -77,7 +111,7 @@ export default function MusicPlayer() {
       setLoadError(true);
       setPlaying(false);
     };
-    const onPlay  = () => setPlaying(true);
+    const onPlay  = () => { setPlaying(true);  setWaitingForGesture(false); };
     const onPause = () => setPlaying(false);
 
     audio.addEventListener('loadedmetadata', onLoadedMeta);
@@ -89,6 +123,7 @@ export default function MusicPlayer() {
 
     if (audio.readyState >= 1 && audio.duration > 0) {
       setDuration(audio.duration);
+      tryAutoplay(audio);
     }
 
     audio.load();
@@ -101,7 +136,7 @@ export default function MusicPlayer() {
       audio.removeEventListener('play',           onPlay);
       audio.removeEventListener('pause',          onPause);
     };
-  }, [song.filename]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [song.filename, tryAutoplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const togglePlay = useCallback(async () => {
     const audio = audioRef.current;
@@ -272,7 +307,9 @@ export default function MusicPlayer() {
             ? '⚠ Audio file not found'
             : playing
               ? '♪ Now playing — come back tomorrow for a new song ♪'
-              : 'Press ▶ to play today\'s song'
+              : waitingForGesture
+                ? '♪ Tap anywhere to start the music ♪'
+                : 'Press ▶ to play today\'s song'
           }
         </div>
       </div>
