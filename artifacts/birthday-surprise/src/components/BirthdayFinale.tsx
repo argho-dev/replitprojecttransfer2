@@ -27,9 +27,7 @@ export default function BirthdayFinale() {
     const t1 = setTimeout(() => setPhase('heartbeat'), 800);
     const t2 = setTimeout(() => {
       setPhase('gallery');
-      spawnConfetti(25);
-      setTimeout(() => spawnConfetti(50), 400);
-      setTimeout(() => spawnConfetti(75), 800);
+      setTimeout(() => spawnConfetti(), 300);
     }, 2800);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
@@ -241,7 +239,7 @@ export default function BirthdayFinale() {
           <button
             className="glow-button"
             style={{ marginTop: 'clamp(4px, 1vh, 12px)', flexShrink: 0 }}
-            onClick={() => { spawnConfetti(25); spawnConfetti(50); spawnConfetti(75); }}
+            onClick={() => spawnConfetti()}
           >
             Celebrate! 🎊
           </button>
