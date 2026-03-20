@@ -20,7 +20,12 @@ function LoadingScreen() {
 }
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('gate');
+  const previewParam = new URLSearchParams(window.location.search).get('preview');
+  const initialScreen: Screen = previewParam === 'finale' ? 'finale'
+    : previewParam === 'cake' ? 'cake'
+    : 'gate';
+
+  const [screen, setScreen] = useState<Screen>(initialScreen);
 
   const handleAccessGranted = () => {
     setScreen('entry');
