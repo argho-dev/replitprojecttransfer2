@@ -27,15 +27,6 @@ interface P { message: string; onReveal?: () => void }
 
 const POLAROID_KF = `
 @keyframes polaroidFloat{0%,100%{transform:translateY(0px)}50%{transform:translateY(-5px)}}
-@keyframes prettyGlow{
-  0%  {color:#ff79c6;text-shadow:0 0 8px #ff79c6,0 0 22px #ff79c6}
-  17% {color:#ff9f43;text-shadow:0 0 8px #ff9f43,0 0 22px #ff9f43}
-  33% {color:#ffd700;text-shadow:0 0 8px #ffd700,0 0 22px #ffd700}
-  50% {color:#50fa7b;text-shadow:0 0 8px #50fa7b,0 0 22px #50fa7b}
-  67% {color:#8be9fd;text-shadow:0 0 8px #8be9fd,0 0 22px #8be9fd}
-  83% {color:#bd93f9;text-shadow:0 0 8px #bd93f9,0 0 22px #bd93f9}
-  100%{color:#ff79c6;text-shadow:0 0 8px #ff79c6,0 0 22px #ff79c6}
-}
 `;
 
 export default function LoveLetter({ message, onReveal }: P) {
@@ -257,18 +248,30 @@ export default function LoveLetter({ message, onReveal }: P) {
               borderRadius: 2,
             }}
           />
+          {/* Notebook caption */}
           <div style={{
+            marginTop: 8,
+            marginLeft: -10,
+            marginRight: -10,
+            marginBottom: -32,
+            background: 'repeating-linear-gradient(#fdf6e3, #fdf6e3 19px, #b8d4f0 19px, #b8d4f0 20px)',
+            borderTop: '1.5px solid #c9bfa0',
+            borderLeft: '3px solid #e07070',
+            padding: '6px 10px 8px 14px',
             textAlign: 'center',
-            paddingTop: 6,
-            paddingBottom: 2,
-            fontFamily: "'Georgia', serif",
-            fontStyle: 'italic',
-            fontWeight: 700,
-            fontSize: 'clamp(0.75rem, 2vw, 0.95rem)',
-            letterSpacing: '0.04em',
-            animation: 'prettyGlow 3s linear infinite',
           }}>
-            pretty she ✨
+            <span
+              className="shimmer-text"
+              style={{
+                fontFamily: "'Georgia', serif",
+                fontStyle: 'italic',
+                fontWeight: 700,
+                fontSize: 'clamp(0.75rem, 2vw, 0.92rem)',
+                letterSpacing: '0.05em',
+              }}
+            >
+              pretty she ✨
+            </span>
           </div>
         </div>
       </div>
