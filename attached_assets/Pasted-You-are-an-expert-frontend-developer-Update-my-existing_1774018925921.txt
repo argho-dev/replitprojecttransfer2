@@ -1,0 +1,66 @@
+You are an expert frontend developer.
+
+Update my existing project with the following changes. Follow all instructions strictly.
+
+-----------------------------------
+1. LYRICS POP ANIMATION (FOR MUSIC)
+-----------------------------------
+
+- When a song is playing, display short lyric snippets (2–5 words).
+- These lyrics should:
+  • Appear randomly at different positions on the screen  
+  • Have smooth fade-in and fade-out animations  
+  • Include slight floating/drifting movement  
+  • Disappear after 2–4 seconds  
+
+- Lyrics should continuously appear while the song is playing.
+- When the song changes, update the lyrics accordingly.
+- Keep the animation minimal, aesthetic, and not cluttered.
+
+-----------------------------------
+2. SCRATCH TO REVEAL MESSAGE
+-----------------------------------
+
+- Remove the current envelope message interaction completely.
+- Replace it with a scratch-to-reveal effect.
+
+Requirements:
+  • A top layer (blurred or solid cover) hides the message  
+  • User can scratch using mouse or touch  
+  • Message gradually reveals underneath  
+  • The scratch effect should feel smooth and realistic  
+
+- Keep the exact same message content.
+- Only change the interaction method.
+
+-----------------------------------
+3. BACKGROUND RANDOM CHANGE (IMPORTANT)
+-----------------------------------
+
+- Keep the existing behavior EXACTLY as it is:
+  • Background must change randomly on every reload or reopen  
+  • It should NOT depend on date or time  
+  • It should feel random every time  
+
+- Do NOT modify or break the current background logic.
+
+-----------------------------------
+STRICT RULES
+-----------------------------------
+
+- Do NOT change:
+  • Existing UI design  
+  • Layout or styling (unless required for above features)  
+  • Music player functionality  
+
+- Only ADD the required features.
+- Ensure clean, modular code.
+- Do not break any existing functionality.
+
+-----------------------------------
+OUTPUT REQUIREMENT
+-----------------------------------
+
+- Provide only the necessary code changes.
+- Clearly mention which files to edit.
+- Keep the implementation simple and working.

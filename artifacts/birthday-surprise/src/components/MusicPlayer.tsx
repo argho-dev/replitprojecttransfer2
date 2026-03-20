@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { getDailySong, type Song } from '../lib/songs';
+import LyricsPopup from './LyricsPopup';
 
 function formatTime(sec: number): string {
   if (!isFinite(sec) || isNaN(sec) || sec <= 0) return '0:00';
@@ -156,6 +157,7 @@ export default function MusicPlayer() {
 
   return (
     <>
+      <LyricsPopup playing={playing} song={song} />
       <audio
         key={song.filename}
         ref={audioRef}
