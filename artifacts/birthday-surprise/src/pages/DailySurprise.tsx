@@ -4,9 +4,7 @@ import Starfield from '../components/Starfield';
 import MusicPlayer from '../components/MusicPlayer';
 import {
   getCountdownParts,
-  getTodaySurpriseIndex,
   getTodayMessages,
-  SURPRISE_MODULES,
 } from '../lib/surprises';
 import { spawnFloatingHearts } from '../components/ConfettiEffect';
 
@@ -262,10 +260,10 @@ function MessagePopup({ messages, onClose }: { messages: string[]; onClose: () =
 }
 
 export default function DailySurprise() {
-  const todayIndex  = getTodaySurpriseIndex();
+  // Love letter envelope is always shown — pick fresh messages each load
+  const moduleName  = 'loveLetter';
+  const SurpriseCmp = modules['loveLetter'];
   const todayMsgs   = getTodayMessages();
-  const moduleName  = SURPRISE_MODULES[todayIndex];
-  const SurpriseCmp = modules[moduleName as keyof typeof modules];
 
   const headerRef  = useRef<HTMLDivElement>(null);
   const footerRef  = useRef<HTMLDivElement>(null);

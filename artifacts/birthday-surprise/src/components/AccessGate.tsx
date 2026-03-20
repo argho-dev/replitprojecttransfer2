@@ -1,53 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import Starfield from './Starfield';
-
-const ACCESS_KEY = 'bday_session_access';
 
 interface AccessGateProps {
   onGranted: () => void;
 }
 
 export default function AccessGate({ onGranted }: AccessGateProps) {
-  const [denied, setDenied] = useState(false);
+  const [denied, setDenied]   = useState(false);
   const [visible, setVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
+  // Always show the gate on every page load — no storage involved
   useEffect(() => {
-    if (sessionStorage.getItem(ACCESS_KEY) === 'yes') {
-      onGranted();
-      return;
-    }
     const t = setTimeout(() => setVisible(true), 400);
     return () => clearTimeout(t);
-  }, [onGranted]);
+  }, []);
 
   useEffect(() => {
-    if (!visible) return;
-    gsap.fromTo('.access-card',
+    if (!visible || !cardRef.current) return;
+    gsap.fromTo(cardRef.current,
       { opacity: 0, y: 30, scale: 0.92 },
       { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out' }
     );
   }, [visible]);
 
   const handleYes = () => {
-    sessionStorage.setItem(ACCESS_KEY, 'yes');
-    gsap.to('.access-card', {
+    if (!cardRef.current) { onGranted(); return; }
+    gsap.to(cardRef.current, {
       opacity: 0, scale: 1.05, duration: 0.5, ease: 'power2.in',
       onComplete: onGranted,
     });
   };
-
-  useEffect(() => {
-    if (!denied) return;
-    // Run after React has rendered the denied message into the DOM
-    const t = setTimeout(() => {
-      gsap.fromTo('.denied-msg',
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }
-      );
-    }, 20);
-    return () => clearTimeout(t);
-  }, [denied]);
 
   const handleNo = () => setDenied(true);
 
@@ -56,7 +40,8 @@ export default function AccessGate({ onGranted }: AccessGateProps) {
       <Starfield />
       {visible && (
         <div
-          className="access-card glass-card relative z-10 flex flex-col items-center gap-8 text-center px-10 py-12"
+          ref={cardRef}
+          className="glass-card relative z-10 flex flex-col items-center gap-8 text-center px-10 py-12"
           style={{ maxWidth: 420, width: '90%', opacity: 0 }}
         >
           {!denied ? (
@@ -102,18 +87,33 @@ export default function AccessGate({ onGranted }: AccessGateProps) {
               </div>
             </>
           ) : (
-            <div className="denied-msg flex flex-col items-center gap-5" style={{ opacity: 0 }}>
-              <div style={{ fontSize: '3rem' }}>💛</div>
-              <p style={{ color: '#f8f8f2', fontSize: '1.3rem', fontWeight: 600, lineHeight: 1.5 }}>
-                Sorry, this is only made for her 💛
-              </p>
-              <p style={{ color: '#bd93f9', fontSize: '0.95rem', opacity: 0.7 }}>
-                Come back when you're Anuska 🌸
-              </p>
-            </div>
+            <DeniedMessage />
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function DeniedMessage() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    gsap.fromTo(ref.current,
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }
+    );
+  }, []);
+
+  return (
+    <div ref={ref} className="flex flex-col items-center gap-5" style={{ opacity: 0 }}>
+      <div style={{ fontSize: '3rem' }}>💛</div>
+      <p style={{ color: '#f8f8f2', fontSize: '1.3rem', fontWeight: 600, lineHeight: 1.5 }}>
+        Sorry, this is only made for Anuska 💛
+      </p>
+      <p style={{ color: '#bd93f9', fontSize: '0.95rem', opacity: 0.7 }}>
+        This page is not for you 🌸
+      </p>
     </div>
   );
 }

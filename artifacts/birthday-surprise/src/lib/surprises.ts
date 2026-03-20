@@ -111,22 +111,12 @@ export function getTodaySurpriseIndex(): number {
 export function getTodayMessages(): string[] {
   if (isBirthday()) return BIRTHDAY_MESSAGES;
 
-  const key = dayKey();
-
-  const storedDate = localStorage.getItem('bday_msgDate');
-  const storedMsgs = localStorage.getItem('bday_msgTexts');
-  if (storedDate === key && storedMsgs) {
-    try {
-      const parsed = JSON.parse(storedMsgs);
-      if (Array.isArray(parsed) && parsed.length === 2) return parsed;
-    } catch {
-    }
-  }
-
+  // Pick 2 fresh messages on every call, using history to avoid recent repeats
   const seenRaw = localStorage.getItem('bday_seenMsgs');
   let seen: number[] = seenRaw ? JSON.parse(seenRaw) : [];
 
-  if (seen.length >= PERSONAL_MESSAGES.length - 1) seen = [];
+  // Reset seen list when most messages have been used
+  if (seen.length >= PERSONAL_MESSAGES.length - 2) seen = [];
 
   const available = PERSONAL_MESSAGES.map((_, i) => i).filter(i => !seen.includes(i));
 
@@ -137,9 +127,7 @@ export function getTodayMessages(): string[] {
   const msgs = [PERSONAL_MESSAGES[pick1], PERSONAL_MESSAGES[pick2]];
 
   seen.push(pick1, pick2);
-  localStorage.setItem('bday_seenMsgs',  JSON.stringify(seen));
-  localStorage.setItem('bday_msgTexts',  JSON.stringify(msgs));
-  localStorage.setItem('bday_msgDate',   key);
+  localStorage.setItem('bday_seenMsgs', JSON.stringify(seen));
 
   return msgs;
 }
