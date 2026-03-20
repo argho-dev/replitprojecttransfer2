@@ -1,37 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { spawnConfetti } from './ConfettiEffect';
+import img1 from '@assets/image1_1774035362435.jpeg';
+import img2 from '@assets/image2_1774035362433.jpeg';
+import img3 from '@assets/image3_1774035362434.jpeg';
+import img4 from '@assets/image4_1774035362434.jpeg';
+import img5 from '@assets/image5_1774035362434.jpeg';
+import img6 from '@assets/image6_1774035362433.jpeg';
 
 const POLAROIDS = [
-  {
-    msg: 'Every moment with you is a blessing 💛',
-    bg: 'linear-gradient(135deg, #ffd6e7 0%, #ffb3c6 100%)',
-    rotate: '-3deg',
-  },
-  {
-    msg: 'Your smile lights up every room 🌸',
-    bg: 'linear-gradient(135deg, #c9b8ff 0%, #a78bfa 100%)',
-    rotate: '2deg',
-  },
-  {
-    msg: "Here's to all our beautiful memories \u2728",
-    bg: 'linear-gradient(135deg, #b5ead7 0%, #6ee7b7 100%)',
-    rotate: '-1.5deg',
-  },
-  {
-    msg: 'Wishing you endless happiness 🎂',
-    bg: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 100%)',
-    rotate: '2.5deg',
-  },
-  {
-    msg: 'You deserve the whole world and more 🌺',
-    bg: 'linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%)',
-    rotate: '-2deg',
-  },
-  {
-    msg: 'Happy 22nd — stay magical always 💖',
-    bg: 'linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%)',
-    rotate: '1.5deg',
-  },
+  { img: img1, msg: 'Every moment with you is a blessing \uD83D\uDC9B', rotate: '-3deg' },
+  { img: img2, msg: 'Your smile lights up every room \uD83C\uDF38', rotate: '2deg' },
+  { img: img3, msg: "Here's to all our beautiful memories \u2728", rotate: '-1.5deg' },
+  { img: img4, msg: 'Wishing you endless happiness \uD83C\uDF82', rotate: '2.5deg' },
+  { img: img5, msg: 'You deserve the whole world and more \uD83C\uDF3A', rotate: '-2deg' },
+  { img: img6, msg: 'Happy 22nd \u2014 stay magical always \uD83D\uDC96', rotate: '1.5deg' },
 ];
 
 export default function BirthdayFinale() {
@@ -196,22 +178,17 @@ export default function BirthdayFinale() {
                     cursor: 'default',
                   }}
                 >
-                  {/* Photo area — placeholder gradient */}
-                  <div
+                  {/* Photo — full image, no cropping */}
+                  <img
+                    src={p.img}
+                    alt=""
                     style={{
                       width: '100%',
-                      aspectRatio: '1 / 1',
-                      background: p.bg,
+                      height: 'auto',
+                      display: 'block',
                       borderRadius: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      overflow: 'hidden',
                     }}
-                  >
-                    {/* Replace this div with an <img> tag pointing to your photo */}
-                    <span style={{ fontSize: 'clamp(28px, 6vw, 48px)', opacity: 0.5 }}>📷</span>
-                  </div>
+                  />
 
                   {/* Message below photo */}
                   <div
