@@ -17,16 +17,18 @@ interface WordBurst {
 
 /* ─── Palette ────────────────────────────────────────────────── */
 const PALETTE = [
-  { color: '#ff79c6', glowA: 'rgba(255,121,198,1)',   glowB: 'rgba(255,121,198,0.5)' },
-  { color: '#bd93f9', glowA: 'rgba(189,147,249,1)',   glowB: 'rgba(189,147,249,0.5)' },
-  { color: '#8be9fd', glowA: 'rgba(139,233,253,1)',   glowB: 'rgba(139,233,253,0.5)' },
-  { color: '#ffb86c', glowA: 'rgba(255,184,108,1)',   glowB: 'rgba(255,184,108,0.5)' },
-  { color: '#f1fa8c', glowA: 'rgba(241,250,140,1)',   glowB: 'rgba(241,250,140,0.5)' },
-  { color: '#ff92df', glowA: 'rgba(255,146,223,1)',   glowB: 'rgba(255,146,223,0.5)' },
-  { color: '#ffffff', glowA: 'rgba(255,255,255,0.95)', glowB: 'rgba(255,200,230,0.5)' },
-  { color: '#fca5a5', glowA: 'rgba(252,165,165,1)',   glowB: 'rgba(252,165,165,0.5)' },
-  { color: '#c4b5fd', glowA: 'rgba(196,181,253,1)',   glowB: 'rgba(196,181,253,0.5)' },
-  { color: '#6ee7b7', glowA: 'rgba(110,231,183,1)',   glowB: 'rgba(110,231,183,0.5)' },
+  { color: '#c2185b', glowA: 'rgba(194,24,91,0.9)',   glowB: 'rgba(194,24,91,0.4)'   },
+  { color: '#7b1fa2', glowA: 'rgba(123,31,162,0.9)',  glowB: 'rgba(123,31,162,0.4)'  },
+  { color: '#1565c0', glowA: 'rgba(21,101,192,0.9)',  glowB: 'rgba(21,101,192,0.4)'  },
+  { color: '#00695c', glowA: 'rgba(0,105,92,0.9)',    glowB: 'rgba(0,105,92,0.4)'    },
+  { color: '#e65100', glowA: 'rgba(230,81,0,0.9)',    glowB: 'rgba(230,81,0,0.4)'    },
+  { color: '#880e4f', glowA: 'rgba(136,14,79,0.9)',   glowB: 'rgba(136,14,79,0.4)'   },
+  { color: '#4a148c', glowA: 'rgba(74,20,140,0.9)',   glowB: 'rgba(74,20,140,0.4)'   },
+  { color: '#bf360c', glowA: 'rgba(191,54,12,0.9)',   glowB: 'rgba(191,54,12,0.4)'   },
+  { color: '#1a237e', glowA: 'rgba(26,35,126,0.9)',   glowB: 'rgba(26,35,126,0.4)'   },
+  { color: '#006064', glowA: 'rgba(0,96,100,0.9)',    glowB: 'rgba(0,96,100,0.4)'    },
+  { color: '#4e342e', glowA: 'rgba(78,52,46,0.9)',    glowB: 'rgba(78,52,46,0.4)'    },
+  { color: '#1b5e20', glowA: 'rgba(27,94,32,0.9)',    glowB: 'rgba(27,94,32,0.4)'    },
 ];
 
 const SIZES  = [20, 22, 25, 28, 32, 36, 40];
@@ -68,18 +70,7 @@ const CSS = `
 const IN_MS   = 450;
 const HOLD_MS = 3200;
 const OUT_MS  = 700;
-const MAX_WORDS_PER_LINE = 2;  // only 2 words per lyric trigger
-const WORD_STAGGER_MS   = 300; // gap between the 2 words
-
-/* Words too small/common to show alone */
-const STOP_WORDS = new Set([
-  'a','an','the','and','or','but','in','on','at','to','for','of','with',
-  'i','my','me','you','your','we','our','it','its','is','are','was','were',
-  'be','been','so','up','by','if','as','not','do','did','had','has','have',
-  'that','this','will','would','could','should','may','might','just','than',
-  'then','when','what','who','how','all','from','they','them','their','her',
-  'him','his','she','he','no','yes','oh','into',
-]);
+const WORD_STAGGER_MS = 180; // gap between words in the same line
 
 /* ─── Component ──────────────────────────────────────────────── */
 interface Props {
@@ -126,12 +117,8 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
     lastTextRef.current = lyric.text;
     lastTimeRef.current = currentTime;
 
-    /* Split into words, filter stop words, cap per lyric trigger */
-    const allWords = lyric.text.split(/\s+/).filter(Boolean);
-    const meaningful = allWords.filter(w => !STOP_WORDS.has(w.toLowerCase().replace(/[^a-z]/g, '')));
-    /* Fall back to all words if nothing meaningful remains */
-    const pool = meaningful.length > 0 ? meaningful : allWords;
-    const wordList = pool.slice(0, MAX_WORDS_PER_LINE);
+    /* Every word of this lyric line, shown exactly once */
+    const wordList = lyric.text.split(/\s+/).filter(Boolean);
 
     wordList.forEach((word, wi) => {
       const delay    = wi * WORD_STAGGER_MS;
@@ -153,7 +140,7 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
 
       /* Spawn after stagger delay */
       addTimer(() => {
-        setWords(prev => [...prev.slice(-20), burst]);
+        setWords(prev => [...prev.slice(-30), burst]);
       }, delay);
 
       /* in → hold */
