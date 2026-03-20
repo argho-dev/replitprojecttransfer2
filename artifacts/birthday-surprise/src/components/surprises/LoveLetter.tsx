@@ -335,7 +335,7 @@ export default function LoveLetter({ message, onReveal }: P) {
           >
             <div style={{ textAlign: 'center', marginBottom: 'clamp(12px,3vw,20px)' }}>
               <div style={{ fontSize: 'clamp(2rem,7vw,3.2rem)', lineHeight: 1, marginBottom: 8 }}>💌</div>
-              <div style={{ fontWeight: 700, fontSize: 'clamp(1rem,3vw,1.3rem)', color: '#c2185b' }}>For You 💖</div>
+              <div style={{ fontWeight: 700, fontSize: 'clamp(1rem,3vw,1.3rem)', color: '#c2185b' }}>For You</div>
             </div>
 
             <div style={{ color: '#4a1030', lineHeight: 1.75, fontSize: 'clamp(.8rem,2.2vw,1rem)' }}>
@@ -352,7 +352,7 @@ export default function LoveLetter({ message, onReveal }: P) {
               </p>
             </div>
 
-            <div style={{ marginTop: 16, textAlign: 'center', fontSize: 'clamp(1.2rem,4vw,1.8rem)' }}>💕 💖 💗</div>
+            <div style={{ marginTop: 16, textAlign: 'center', fontSize: 'clamp(1.2rem,4vw,1.8rem)' }}>💖</div>
 
             {stage === 'revealed' && (
               <div style={{ textAlign: 'center', marginTop: 14 }}>
