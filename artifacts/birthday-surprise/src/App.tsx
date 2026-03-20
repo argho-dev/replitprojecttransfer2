@@ -46,9 +46,7 @@ export default function App() {
 
   const handleGoToCake = () => {
     if (!isBirthdayFinalDay()) return;
-    if (sessionStorage.getItem('cakeShown')) return;
     if (cakeTimerRef.current) return;
-    sessionStorage.setItem('cakeShown', '1');
     cakeTimerRef.current = setTimeout(() => {
       setScreen('cake');
       cakeTimerRef.current = null;
