@@ -37,13 +37,19 @@ export default function AccessGate({ onGranted }: AccessGateProps) {
     });
   };
 
-  const handleNo = () => {
-    setDenied(true);
-    gsap.fromTo('.denied-msg',
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
-    );
-  };
+  useEffect(() => {
+    if (!denied) return;
+    // Run after React has rendered the denied message into the DOM
+    const t = setTimeout(() => {
+      gsap.fromTo('.denied-msg',
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }
+      );
+    }, 20);
+    return () => clearTimeout(t);
+  }, [denied]);
+
+  const handleNo = () => setDenied(true);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center" style={{ background: '#000' }}>
