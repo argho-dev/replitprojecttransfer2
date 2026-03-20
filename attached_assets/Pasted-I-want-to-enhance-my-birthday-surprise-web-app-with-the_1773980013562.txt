@@ -1,0 +1,117 @@
+I want to enhance my birthday surprise web app with the following new features. Please implement everything carefully without breaking the current design or functionality.
+
+---
+
+### 1. Entry Gate (Access Control Page)
+
+Before the main starting page loads, add a new entry screen.
+
+Requirements:
+
+* Show a question: **"Are you Anuska?"**
+* Add two buttons:
+
+  * "Yes"
+  * "No"
+
+Behavior:
+
+* If user clicks "Yes" → allow access to the main website
+
+* If user clicks "No" → show message:
+  "Sorry, this is only made for her 💛"
+  and prevent access
+
+* Save access state in localStorage so user doesn't have to answer again every time
+
+---
+
+### 2. Dynamic Animated Background System
+
+The current background feels empty. Improve it with rich animations.
+
+Requirements:
+
+* Add multiple animated background styles such as:
+
+  * floating hearts 💖
+  * flower petals 🌸
+  * emoji rain ✨
+  * glowing particles
+  * soft gradient animations
+
+* Background should NOT feel static
+
+* Add smooth motion and transitions
+
+---
+
+### 3. Daily Changing Background (Important)
+
+* Every day, a new background/animation style should appear
+* Background should change automatically based on date
+* It should feel "new every day"
+
+Logic:
+
+* Use date-based variation (e.g., day index or random seed stored per day)
+* Do NOT repeat same background frequently
+
+---
+
+### 4. Final Day Special (Birthday Override)
+
+On March 31st (12:00 AM onward):
+
+* Override all random backgrounds
+
+* Show a **fixed special background**
+
+* Make it more premium:
+
+  * glowing effects
+  * subtle animations
+  * celebratory vibe (not too heavy)
+
+* This background should ONLY appear on birthday and never before
+
+---
+
+### 5. Sync With Music System
+
+* Ensure background + music both follow daily logic
+
+* Each day:
+
+  * new song
+  * new background
+
+* Do not repeat same song within 3 days (already implemented logic should remain)
+
+---
+
+### 6. Smooth Transitions
+
+* Add fade or transition effects when:
+
+  * background changes
+  * pages load
+* Avoid sudden UI jumps
+
+---
+
+### 7. Performance
+
+* Animations should be smooth (60fps where possible)
+* Avoid heavy lag or excessive DOM elements
+* Use canvas or optimized rendering if needed
+
+---
+
+### Goal:
+
+Create a magical, evolving experience where:
+
+* Each day feels new and special
+* Only the intended person can access it
+* The final birthday day feels unique and unforgettable

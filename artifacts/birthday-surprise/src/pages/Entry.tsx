@@ -51,7 +51,7 @@ export default function Entry({ onContinue }: EntryProps) {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: '#000' }}>
+    <div className="fixed inset-0 flex flex-col items-center justify-center page-fade-in" style={{ background: 'transparent' }}>
       <Starfield />
 
       <div className="relative z-10 flex flex-col items-center gap-8 text-center px-4">

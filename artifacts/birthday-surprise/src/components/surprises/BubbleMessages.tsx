@@ -55,7 +55,7 @@ export default function BubbleMessages({ onReveal }: P) {
             onClick={() => setRevealed(r => new Set([...r,i]))}
             style={{
               cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
-              borderRadius:'50%', transition:'transform .15s',
+              transition:'transform .15s',
               border:`2px solid ${b.color}66`,
               background: revealed.has(i)
                 ? 'rgba(255,255,255,.2)'

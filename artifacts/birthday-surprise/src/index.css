@@ -506,3 +506,31 @@ input[type="range"]::-moz-range-thumb {
 button, [role="button"] {
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.2s ease;
 }
+
+/* ============ AURORA BACKGROUND ============ */
+@keyframes auroraShift1 {
+  0%   { opacity: 0.7; transform: translateX(0%) translateY(0%) scale(1); }
+  33%  { opacity: 1;   transform: translateX(8%)  translateY(-5%) scale(1.1); }
+  66%  { opacity: 0.8; transform: translateX(-5%) translateY(8%)  scale(0.95); }
+  100% { opacity: 0.7; transform: translateX(0%) translateY(0%) scale(1); }
+}
+@keyframes auroraShift2 {
+  0%   { opacity: 0.6; transform: translateX(0%) translateY(0%) scale(1); }
+  50%  { opacity: 1;   transform: translateX(-10%) translateY(6%) scale(1.15); }
+  100% { opacity: 0.6; transform: translateX(0%) translateY(0%) scale(1); }
+}
+@keyframes auroraShift3 {
+  0%   { opacity: 0.5; transform: translateX(0%) translateY(0%); }
+  40%  { opacity: 0.9; transform: translateX(6%)  translateY(-8%); }
+  80%  { opacity: 0.6; transform: translateX(-4%) translateY(4%); }
+  100% { opacity: 0.5; transform: translateX(0%) translateY(0%); }
+}
+
+/* ============ PAGE FADE-IN ============ */
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.page-fade-in {
+  animation: pageFadeIn 0.7s ease forwards;
+}

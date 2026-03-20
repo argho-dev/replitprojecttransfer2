@@ -1,12 +1,14 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { isBirthday, isBirthdayEve } from './lib/surprises';
 import Entry from './pages/Entry';
+import AccessGate from './components/AccessGate';
+import DailyBackground from './components/DailyBackground';
 
 const DailySurprise = lazy(() => import('./pages/DailySurprise'));
 const BirthdayCake  = lazy(() => import('./components/BirthdayCake'));
 const BirthdayFinale = lazy(() => import('./components/BirthdayFinale'));
 
-type Screen = 'entry' | 'surprise' | 'cake' | 'finale';
+type Screen = 'gate' | 'entry' | 'surprise' | 'cake' | 'finale';
 
 function LoadingScreen() {
   return (
@@ -19,7 +21,11 @@ function LoadingScreen() {
 }
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('entry');
+  const [screen, setScreen] = useState<Screen>('gate');
+
+  const handleAccessGranted = () => {
+    setScreen('entry');
+  };
 
   const handleContinue = () => {
     if (isBirthday()) {
@@ -36,11 +42,18 @@ export default function App() {
     link.rel   = 'stylesheet';
     link.href  = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap';
     document.head.appendChild(link);
-    return () => document.head.removeChild(link);
+    return () => { document.head.removeChild(link); };
   }, []);
 
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ background: '#000' }}>
+      {/* Daily animated background layer — visible on all screens */}
+      {screen !== 'gate' && <DailyBackground />}
+
+      {screen === 'gate' && (
+        <AccessGate onGranted={handleAccessGranted} />
+      )}
+
       {screen === 'entry' && (
         <Entry onContinue={handleContinue} />
       )}
@@ -51,14 +64,12 @@ export default function App() {
         </Suspense>
       )}
 
-      {/* Birthday eve (March 30 23:50+) — cake with candles */}
       {screen === 'cake' && (
         <Suspense fallback={<LoadingScreen />}>
           <BirthdayCake onDone={() => setScreen('finale')} />
         </Suspense>
       )}
 
-      {/* Birthday (March 31) — fireworks finale */}
       {screen === 'finale' && (
         <Suspense fallback={<LoadingScreen />}>
           <BirthdayFinale />
