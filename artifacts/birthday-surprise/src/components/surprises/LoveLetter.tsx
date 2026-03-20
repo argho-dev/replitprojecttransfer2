@@ -260,34 +260,18 @@ export default function LoveLetter({ message, onReveal }: P) {
               }}
             />
           </div>
-          {/* Caption ribbon */}
+          {/* Caption */}
           <div style={{
             textAlign: 'center',
-            marginTop: 6,
+            marginTop: 5,
             marginBottom: -20,
+            fontFamily: "'Caveat', cursive",
+            fontWeight: 700,
+            fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
+            color: '#1a1a1a',
+            letterSpacing: '0.03em',
           }}>
-            <div style={{
-              display: 'inline-block',
-              background: 'linear-gradient(135deg,rgba(255,121,198,0.18),rgba(189,147,249,0.18))',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,121,198,0.35)',
-              borderRadius: 20,
-              padding: '3px 14px 4px',
-            }}>
-              <span
-                className="shimmer-text"
-                style={{
-                  fontFamily: "'Georgia', serif",
-                  fontStyle: 'italic',
-                  fontWeight: 700,
-                  fontSize: 'clamp(0.72rem, 2vw, 0.9rem)',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                pretty she ✨
-              </span>
-            </div>
+            Pretty She
           </div>
         </div>
       </div>
