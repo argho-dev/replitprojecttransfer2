@@ -69,7 +69,8 @@ export function getCountdownParts(): { days: number; hours: number; minutes: num
 }
 
 function isForcedBirthday(): boolean {
-  return new URLSearchParams(window.location.search).get('forceBirthday') === '1';
+  return new URLSearchParams(window.location.search).get('forceBirthday') === '1'
+    || localStorage.getItem('forceBirthday') === '1';
 }
 
 export function isBirthday(): boolean {

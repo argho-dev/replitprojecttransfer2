@@ -328,7 +328,11 @@ export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
       {showHeart && (
         <HeartFormation
           imageSrc={randomPhoto}
-          onDismiss={() => { setShowHeart(false); onScratchDone?.(); }}
+          onDismiss={() => {
+            console.log('[LoveLetter] heart dismissed, onScratchDone:', typeof onScratchDone);
+            setShowHeart(false);
+            onScratchDone?.();
+          }}
         />
       )}
 

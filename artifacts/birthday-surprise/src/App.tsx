@@ -26,6 +26,17 @@ export default function App() {
     : previewParam === 'cake' ? 'cake'
     : 'gate';
 
+  // Persist forceBirthday from URL into localStorage so it survives iframe reloads
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('forceBirthday') === '1') {
+      localStorage.setItem('forceBirthday', '1');
+    }
+  }, []);
+
+  // Compute once on mount — never re-checks during the session
+  const isFinalDay = useRef(isBirthdayFinalDay()).current;
+  console.log('[App] isFinalDay:', isFinalDay, '| url:', window.location.href);
+
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const cakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -34,8 +45,7 @@ export default function App() {
   };
 
   const handleContinue = () => {
-    if (isBirthdayFinalDay()) {
-      // Birthday: go through the scratch page first, then auto-navigate to cake after scratch
+    if (isFinalDay) {
       setScreen('surprise');
     } else if (isBirthdayEve()) {
       setScreen('cake');
@@ -45,8 +55,10 @@ export default function App() {
   };
 
   const handleGoToCake = () => {
+    console.log('[App] handleGoToCake called — starting 3s timer');
     if (cakeTimerRef.current) return;
     cakeTimerRef.current = setTimeout(() => {
+      console.log('[App] 3s done — switching to cake');
       setScreen('cake');
       cakeTimerRef.current = null;
     }, 3000);
@@ -74,7 +86,7 @@ export default function App() {
 
       {screen === 'surprise' && (
         <Suspense fallback={<LoadingScreen />}>
-          <DailySurprise onGoToCake={isBirthdayFinalDay() ? handleGoToCake : undefined} />
+          <DailySurprise onGoToCake={isFinalDay ? handleGoToCake : undefined} />
         </Suspense>
       )}
 
