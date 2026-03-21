@@ -95,7 +95,8 @@ export default function NightSkyHeart({ onDismiss }: Props) {
 
       if (!heartDoneRef.current) {
         /* Moving shooting star */
-        const curPt = heartPath[Math.min(stepIdx, HEART_STEPS - 1)];
+        const curPt = heartPath[Math.min(stepIdx, heartPath.length - 1)];
+        if (!curPt) { rafRef.current = requestAnimationFrame(loop); return; }
 
         /* Append to trail */
         trail.push({ x: curPt.x, y: curPt.y, alpha: 1 });

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { getDailySong, type Song } from '../lib/songs';
 import LyricsPopup from './LyricsPopup';
-import { connectAudio } from '../lib/audioReact';
+import { connectAudio, getAudioEnergy } from '../lib/audioReact';
 
 function formatTime(sec: number): string {
   if (!isFinite(sec) || isNaN(sec) || sec <= 0) return '0:00';
@@ -49,6 +49,8 @@ export default function MusicPlayer() {
   const [waitingForGesture, setWaitingForGesture] = useState(false);
 
   const gestureListenerRef = useRef<(() => void) | null>(null);
+  const eqBarRefs          = useRef<(HTMLDivElement | null)[]>([]);
+  const eqRafRef           = useRef<number>(0);
 
   const tryAutoplay = useCallback(async (audio: HTMLAudioElement) => {
     try {
@@ -158,6 +160,37 @@ export default function MusicPlayer() {
     }
   }, [playing]);
 
+  /* ── Equalizer bar RAF loop ─────────────────────────────────── */
+  useEffect(() => {
+    const BAR_COUNT = 5;
+    const BASE_H    = 4;   // px — resting height
+    const MAX_H     = 22;  // px — max height at full energy
+    /* Each bar has its own phase offset so they animate distinctly */
+    const phases = [0, 0.4, 0.8, 1.2, 1.6];
+    let t = 0;
+
+    const tick = () => {
+      eqRafRef.current = requestAnimationFrame(tick);
+      t += 0.06;
+      const energy = getAudioEnergy();
+      for (let i = 0; i < BAR_COUNT; i++) {
+        const bar = eqBarRefs.current[i];
+        if (!bar) continue;
+        /* If playing & energy > 0, animate reactively; else idle bounce */
+        const wave = 0.5 + 0.5 * Math.sin(t * 3 + phases[i]);
+        const h = playing
+          ? BASE_H + (MAX_H - BASE_H) * (energy * 0.7 + wave * 0.3 * energy)
+          : BASE_H + 3 * wave * 0.4;
+        bar.style.height = `${Math.max(BASE_H, h)}px`;
+        bar.style.opacity = playing ? String(0.55 + energy * 0.45) : '0.25';
+      }
+    };
+    eqRafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(eqRafRef.current);
+  }, [playing]);
+
+  const MAX_EQ_H = 22; /* px — must match RAF loop MAX_H */
+
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = parseFloat(e.target.value);
     setVolume(v);
@@ -189,18 +222,40 @@ export default function MusicPlayer() {
           title="Open music player"
           style={{
             position: 'fixed', bottom: '5rem', right: '1.25rem', zIndex: 50,
-            width: 44, height: 44, borderRadius: '50%',
+            width: 52, height: 64, borderRadius: 16,
             background: 'rgba(255,121,198,0.15)',
             backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,121,198,0.35)',
+            border: '1px solid rgba(255,121,198,0.40)',
             cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center', gap: 5,
             fontSize: '1.3rem', color: '#ff79c6',
-            boxShadow: playing ? '0 0 18px rgba(255,121,198,0.7)' : 'none',
-            animation: playing ? 'glowPulse 1.5s ease-in-out infinite' : 'none',
+            boxShadow: playing ? '0 0 22px rgba(255,121,198,0.65)' : 'none',
+            animation: playing ? 'glowPulse 1.8s ease-in-out infinite' : 'none',
+            padding: 0,
           }}
         >
           🎵
+          {/* Equalizer bars */}
+          <div style={{
+            display: 'flex', alignItems: 'flex-end', gap: 2,
+            height: MAX_EQ_H, padding: '0 2px',
+          }}>
+            {[0,1,2,3,4].map(i => (
+              <div
+                key={i}
+                ref={el => { eqBarRefs.current[i] = el; }}
+                style={{
+                  width: 4,
+                  height: 4,
+                  borderRadius: 2,
+                  background: '#ff79c6',
+                  transition: 'height 0.05s linear',
+                  flexShrink: 0,
+                }}
+              />
+            ))}
+          </div>
         </button>
       )}
 
