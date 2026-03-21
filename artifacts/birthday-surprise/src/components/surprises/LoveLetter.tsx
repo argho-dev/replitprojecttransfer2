@@ -1,5 +1,6 @@
 import { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
 import { gsap } from 'gsap';
+import ParticleImage from './ParticleImage';
 import img1 from '@assets/image1_1774035362435.jpeg';
 import img2 from '@assets/image2_1774035362433.jpeg';
 import img3 from '@assets/image3_1774035362434.jpeg';
@@ -298,17 +299,10 @@ export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <img
+            <ParticleImage
               src={randomPhoto}
-              alt=""
-              style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                width: 'auto',
-                height: 'auto',
-                display: 'block',
-                objectFit: 'contain',
-              }}
+              maxW={260}
+              maxH={210}
             />
           </div>
           {/* Caption */}
