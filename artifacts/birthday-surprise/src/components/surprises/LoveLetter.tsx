@@ -82,7 +82,6 @@ export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
 
   useEffect(() => {
     if (stage === 'revealed') {
-      onScratchDone?.();
       setTimeout(() => setShowHeart(true), 1200);
     }
   }, [stage]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -329,7 +328,7 @@ export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
       {showHeart && (
         <HeartFormation
           imageSrc={randomPhoto}
-          onDismiss={() => setShowHeart(false)}
+          onDismiss={() => { setShowHeart(false); onScratchDone?.(); }}
         />
       )}
 
