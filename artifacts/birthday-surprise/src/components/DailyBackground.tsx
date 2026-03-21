@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { getAudioEnergy } from '../lib/audioReact';
 
 type BgMode =
   | 'petals'
@@ -193,9 +194,10 @@ function drawHearts(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
   let t = 0;
   return () => {
     t += 0.012;
+    const energy = getAudioEnergy();
     for (const h of hearts) {
       h.x += h.vx + Math.sin(t * h.sway + h.swayOffset) * 0.5;
-      h.y += h.vy;
+      h.y += h.vy - energy * 1.8;
       h.rotation += h.rotSpeed;
       if (h.y < -h.size * 2) {
         h.y = canvas.height + h.size;

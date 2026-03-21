@@ -1,6 +1,7 @@
 import { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
 import { gsap } from 'gsap';
 import ParticleImage from './ParticleImage';
+import HeartFormation from '../HeartFormation';
 import img1 from '@assets/image1_1774035362435.jpeg';
 import img2 from '@assets/image2_1774035362433.jpeg';
 import img3 from '@assets/image3_1774035362434.jpeg';
@@ -33,6 +34,7 @@ const POLAROID_KF = `
 export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
   const [stage, setStage]           = useState<Stage>('envelope');
   const [scratchPct, setScratchPct] = useState(0);
+  const [showHeart, setShowHeart]   = useState(false);
 
   const randomPhoto = useMemo(() => HER_PHOTOS[Math.floor(Math.random() * HER_PHOTOS.length)], []);
 
@@ -79,7 +81,10 @@ export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (stage === 'revealed') onScratchDone?.();
+    if (stage === 'revealed') {
+      onScratchDone?.();
+      setTimeout(() => setShowHeart(true), 1200);
+    }
   }, [stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── ENVELOPE click ──────────────────────────────────── */
@@ -320,6 +325,13 @@ export default function LoveLetter({ message, onReveal, onScratchDone }: P) {
           </div>
         </div>
       </div>
+
+      {showHeart && (
+        <HeartFormation
+          imageSrc={randomPhoto}
+          onDismiss={() => setShowHeart(false)}
+        />
+      )}
 
       {PETALS.map((p, i) => (
         <div key={i} style={{

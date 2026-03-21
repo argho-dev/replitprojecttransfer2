@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Song, SyncedLyric } from '../lib/songs';
+import { getAudioEnergy } from '../lib/audioReact';
 
 /* ─── Types ─────────────────────────────────────────────────── */
 interface WordBurst {
@@ -84,6 +85,27 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
   const lastTextRef         = useRef<string | null>(null);
   const lastTimeRef         = useRef<number>(-99);
   const timersRef           = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const wrapperRef          = useRef<HTMLDivElement>(null);
+
+  /* Energy-based brightness boost on the lyrics layer */
+  useEffect(() => {
+    if (!playing) {
+      if (wrapperRef.current) wrapperRef.current.style.filter = '';
+      return;
+    }
+    let raf: number;
+    let smoothed = 0;
+    const loop = () => {
+      const raw = getAudioEnergy();
+      smoothed = smoothed * 0.80 + raw * 0.20;
+      if (wrapperRef.current) {
+        wrapperRef.current.style.filter = `brightness(${1 + smoothed * 0.55})`;
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [playing]);
 
   const addTimer = (fn: () => void, ms: number) => {
     const t = setTimeout(fn, ms);
@@ -167,11 +189,13 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
     <>
       <style>{CSS}</style>
       <div
+        ref={wrapperRef}
         style={{
           position: 'fixed', inset: 0,
           zIndex: 40,
           pointerEvents: 'none',
           overflow: 'hidden',
+          willChange: 'filter',
         }}
         aria-hidden="true"
       >

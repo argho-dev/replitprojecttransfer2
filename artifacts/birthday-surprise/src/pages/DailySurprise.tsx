@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, lazy, Suspense, useCallback } from 'react'
 import { gsap } from 'gsap';
 import Starfield from '../components/Starfield';
 import DailyBackground from '../components/DailyBackground';
+import MusicReactLayer from '../components/MusicReactLayer';
+import NightSkyHeart from './NightSkyHeart';
 import {
   getCountdownParts,
   getTodayMessages,
@@ -274,6 +276,7 @@ export default function DailySurprise({ onGoToCake }: { onGoToCake?: () => void 
   const [contentVisible, setContentVisible] = useState(false);
   const [showPopup, setShowPopup]           = useState(false);
   const [popupDismissed, setPopupDismissed] = useState(false);
+  const [showNightSky, setShowNightSky]     = useState(false);
 
   useEffect(() => {
     if (headerRef.current) {
@@ -307,6 +310,7 @@ export default function DailySurprise({ onGoToCake }: { onGoToCake?: () => void 
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: '#050510' }}>
       <DailyBackground />
       <Starfield />
+      <MusicReactLayer />
 
       {/* Header */}
       <div
@@ -370,25 +374,54 @@ export default function DailySurprise({ onGoToCake }: { onGoToCake?: () => void 
             <LiveCountdown />
           </div>
 
-          {/* Reopen popup button (shows after dismissed) */}
-          {popupDismissed && (
+          <div className="flex items-center gap-2">
+            {/* Night Sky button */}
             <button
-              onClick={() => { setPopupDismissed(false); setShowPopup(true); }}
+              onClick={() => setShowNightSky(true)}
+              title="Night Sky Experience"
               style={{
-                background: 'rgba(255,121,198,0.1)',
-                border: '1px solid rgba(255,121,198,0.25)',
+                background: 'rgba(10,6,40,0.5)',
+                border: '1px solid rgba(139,233,253,0.3)',
                 borderRadius: 20, padding: '0.4rem 0.9rem',
-                cursor: 'pointer', color: '#ff79c6',
+                cursor: 'pointer', color: '#8be9fd',
                 fontSize: '0.75rem', fontWeight: 600,
                 display: 'flex', alignItems: 'center', gap: '0.35rem',
-                transition: 'background 0.15s',
+                transition: 'background 0.15s, box-shadow 0.2s',
+                boxShadow: '0 0 12px rgba(139,233,253,0.1)',
+                letterSpacing: '0.03em',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,121,198,0.18)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,121,198,0.1)')}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(10,6,60,0.65)';
+                e.currentTarget.style.boxShadow = '0 0 18px rgba(139,233,253,0.25)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(10,6,40,0.5)';
+                e.currentTarget.style.boxShadow = '0 0 12px rgba(139,233,253,0.1)';
+              }}
             >
-              💌 Today's Message
+              🌙 Night Sky
             </button>
-          )}
+
+          {/* Reopen popup button (shows after dismissed) */}
+          {popupDismissed && (
+              <button
+                onClick={() => { setPopupDismissed(false); setShowPopup(true); }}
+                style={{
+                  background: 'rgba(255,121,198,0.1)',
+                  border: '1px solid rgba(255,121,198,0.25)',
+                  borderRadius: 20, padding: '0.4rem 0.9rem',
+                  cursor: 'pointer', color: '#ff79c6',
+                  fontSize: '0.75rem', fontWeight: 600,
+                  display: 'flex', alignItems: 'center', gap: '0.35rem',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,121,198,0.18)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,121,198,0.1)')}
+              >
+                💌 Today's Message
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -398,6 +431,11 @@ export default function DailySurprise({ onGoToCake }: { onGoToCake?: () => void 
           messages={todayMsgs}
           onClose={() => { setShowPopup(false); setPopupDismissed(true); }}
         />
+      )}
+
+      {/* Night Sky scene overlay */}
+      {showNightSky && (
+        <NightSkyHeart onDismiss={() => setShowNightSky(false)} />
       )}
 
     </div>

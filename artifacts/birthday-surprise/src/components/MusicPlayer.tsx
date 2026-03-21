@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { getDailySong, type Song } from '../lib/songs';
 import LyricsPopup from './LyricsPopup';
+import { connectAudio } from '../lib/audioReact';
 
 function formatTime(sec: number): string {
   if (!isFinite(sec) || isNaN(sec) || sec <= 0) return '0:00';
@@ -111,7 +112,11 @@ export default function MusicPlayer() {
       setLoadError(true);
       setPlaying(false);
     };
-    const onPlay  = () => { setPlaying(true);  setWaitingForGesture(false); };
+    const onPlay  = () => {
+      setPlaying(true);
+      setWaitingForGesture(false);
+      if (audioRef.current) connectAudio(audioRef.current);
+    };
     const onPause = () => setPlaying(false);
 
     audio.addEventListener('loadedmetadata', onLoadedMeta);

@@ -1,0 +1,99 @@
+You are a senior frontend developer.
+
+Enhance my existing web app by adding THREE advanced visual experiences.
+Do not break or modify any existing functionality.
+
+-----------------------------------
+FEATURE 1: PARTICLE HEART FORMATION
+-----------------------------------
+
+Trigger:
+- After the scratch interaction is completed
+
+Behavior:
+
+1. Take the existing image (polaroid image already used in the app)
+
+2. Convert the image into small particles using canvas
+
+3. Animate particles:
+   → Disperse outward with a smooth floating/wind effect
+
+4. After 2–3 seconds:
+   → Particles should move and reorganize into a HEART SHAPE
+
+5. Once the heart shape is formed:
+   → The original image should appear INSIDE the heart
+
+6. Add subtle glow effect to the heart
+
+Requirements:
+- Smooth animation using requestAnimationFrame
+- Optimized particle count for performance
+- Works on both desktop and mobile
+
+-----------------------------------
+FEATURE 2: MUSIC REACTIVE UI
+-----------------------------------
+
+While music is playing:
+
+1. Detect audio energy (use Web Audio API if possible)
+
+2. Based on music:
+   → Background should softly pulse (scale or brightness)
+   → Floating hearts should bounce slightly
+   → Lyrics text should glow or slightly animate
+
+3. Keep it subtle and aesthetic (no aggressive flashing)
+
+4. If music is paused:
+   → All animations should stop or reduce
+
+-----------------------------------
+FEATURE 3: NIGHT SKY SCENE
+-----------------------------------
+
+Create a special scene (can be before or after cake page):
+
+1. Background:
+   → Dark night sky with stars
+
+2. Animation:
+   → One star starts moving across the screen
+   → It draws a glowing HEART shape in the sky
+
+3. After drawing the heart:
+   → Show a text message (centered, soft fade-in)
+
+4. Add:
+   → Twinkling stars
+   → Smooth transitions
+
+-----------------------------------
+INTEGRATION RULES
+-----------------------------------
+
+- Do NOT break:
+  • Envelope flow
+  • Scratch feature
+  • Music player
+  • Background randomizer
+
+- Integrate effects smoothly into existing flow
+
+-----------------------------------
+PERFORMANCE RULES
+-----------------------------------
+
+- Use requestAnimationFrame for animations
+- Limit particle count
+- Ensure mobile compatibility
+
+-----------------------------------
+OUTPUT
+-----------------------------------
+
+- Provide full working code
+- Mention which files to update
+- Keep code clean and modular
