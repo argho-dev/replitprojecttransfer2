@@ -84,7 +84,7 @@ export default function NightSkyHeart({ onDismiss }: Props) {
 
     /* ── Load photo & build particle array ─────────────────── */
     const img = new Image();
-    img.src = '/photos/anuska.png';
+    img.src = '/anuska.jpeg';
 
     img.onload = () => {
       /* Offscreen canvas for pixel sampling */
