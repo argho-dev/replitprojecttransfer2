@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import videoSrc from '@assets/km_20260322_720p_60f_20260322_015708_1774124941575.mp4';
 
 interface Props {
   onClose: () => void;
@@ -9,10 +10,15 @@ export default function TheatreVideo({ onClose }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
-  /* Fade in on mount */
+  /* On mount: fade in + immediately hide lyrics */
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(id);
+    window.dispatchEvent(new CustomEvent('theatre:open'));
+    return () => {
+      cancelAnimationFrame(id);
+      /* On unmount: restore lyrics + volume */
+      window.dispatchEvent(new CustomEvent('theatre:close'));
+    };
   }, []);
 
   /* Smooth volume helper */
@@ -33,12 +39,10 @@ export default function TheatreVideo({ onClose }: Props) {
 
   const handlePlay = () => {
     smoothVolume(0.4);
-    window.dispatchEvent(new CustomEvent('theatre:play'));
   };
 
   const handlePauseOrEnd = () => {
     smoothVolume(1.0);
-    window.dispatchEvent(new CustomEvent('theatre:pause'));
   };
 
   const handleClose = () => {
@@ -46,7 +50,7 @@ export default function TheatreVideo({ onClose }: Props) {
     if (video && !video.paused) {
       video.pause();
     }
-    handlePauseOrEnd();
+    smoothVolume(1.0);
     setVisible(false);
     setTimeout(onClose, 350);
   };
@@ -153,7 +157,7 @@ export default function TheatreVideo({ onClose }: Props) {
       }}>
         <video
           ref={videoRef}
-          src="/birthday_video.mp4"
+          src={videoSrc}
           controls
           playsInline
           controlsList="nofullscreen nodownload noremoteplayback"

@@ -214,20 +214,19 @@ export default function MusicPlayer() {
       volumeRafRef.current = requestAnimationFrame(step);
     }
 
-    const onPlay = () => {
+    const onOpen = () => {
       setIsVideoPlaying(true);
-      smoothTo(0.4);
     };
-    const onPause = () => {
+    const onClose = () => {
       setIsVideoPlaying(false);
       smoothTo(userVolumeRef.current);
     };
 
-    window.addEventListener('theatre:play',  onPlay  as EventListener);
-    window.addEventListener('theatre:pause', onPause as EventListener);
+    window.addEventListener('theatre:open',  onOpen  as EventListener);
+    window.addEventListener('theatre:close', onClose as EventListener);
     return () => {
-      window.removeEventListener('theatre:play',  onPlay  as EventListener);
-      window.removeEventListener('theatre:pause', onPause as EventListener);
+      window.removeEventListener('theatre:open',  onOpen  as EventListener);
+      window.removeEventListener('theatre:close', onClose as EventListener);
       cancelAnimationFrame(volumeRafRef.current);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
