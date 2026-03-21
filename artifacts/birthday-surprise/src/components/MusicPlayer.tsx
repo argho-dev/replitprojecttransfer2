@@ -216,7 +216,7 @@ export default function MusicPlayer() {
 
     const onPlay = () => {
       setIsVideoPlaying(true);
-      smoothTo(0.1);
+      smoothTo(0.2);
     };
     const onPause = () => {
       setIsVideoPlaying(false);
