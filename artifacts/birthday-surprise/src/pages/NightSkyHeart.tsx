@@ -99,14 +99,14 @@ export default function NightSkyHeart({ onDismiss }: Props) {
       oCtx.closePath();
       oCtx.clip();
 
-      /* Fit photo inside heart bounding box (80% to sit within the curve) */
+      /* Cover: fill entire heart bounding box, clip handles overflow */
       const imgAspect = img.naturalWidth / img.naturalHeight;
       const boxAspect = hW / hH;
       let dW: number, dH: number;
-      if (imgAspect > boxAspect) { dW = hW * 0.80; dH = dW / imgAspect; }
-      else                       { dH = hH * 0.78; dW = dH * imgAspect; }
+      if (imgAspect > boxAspect) { dH = hH; dW = dH * imgAspect; }
+      else                       { dW = hW; dH = dW / imgAspect; }
       const dX = cx - dW / 2;
-      const dY = cy - dH / 2 + scale * 0.6;
+      const dY = cy - dH / 2;
       oCtx.drawImage(img, dX, dY, dW, dH);
 
       /* Sample pixels — adaptive step so particle count stays reasonable */
@@ -240,10 +240,10 @@ export default function NightSkyHeart({ onDismiss }: Props) {
             const imgAspect = img.naturalWidth / img.naturalHeight;
             const boxAspect = hW / hH;
             let dW: number, dH: number;
-            if (imgAspect > boxAspect) { dW = hW * 0.80; dH = dW / imgAspect; }
-            else                       { dH = hH * 0.78; dW = dH * imgAspect; }
+            if (imgAspect > boxAspect) { dH = hH; dW = dH * imgAspect; }
+            else                       { dW = hW; dH = dW / imgAspect; }
             ctx.globalAlpha = 1;
-            ctx.drawImage(img, cx - dW / 2, cy - dH / 2 + scale * 0.6, dW, dH);
+            ctx.drawImage(img, cx - dW / 2, cy - dH / 2, dW, dH);
             ctx.restore();
           }
         }
