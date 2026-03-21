@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import videoSrc from '@assets/km_20260322_720p_60f_20260322_015708_1774124941575.mp4';
 
 interface Props {
   onClose: () => void;
@@ -157,7 +156,7 @@ export default function TheatreVideo({ onClose }: Props) {
       }}>
         <video
           ref={videoRef}
-          src={videoSrc}
+          src="/birthday_video.mp4"
           controls
           playsInline
           controlsList="nofullscreen nodownload noremoteplayback"
