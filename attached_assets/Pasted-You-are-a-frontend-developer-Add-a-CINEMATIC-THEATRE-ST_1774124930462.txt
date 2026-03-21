@@ -1,0 +1,105 @@
+You are a frontend developer.
+
+Add a CINEMATIC THEATRE-STYLE VIDEO SECTION to my existing web app.
+
+-----------------------------------
+POSITION (VERY IMPORTANT)
+-----------------------------------
+
+- Place this new video section:
+
+  → BELOW the MESSAGE PAGE  
+  → NEAR / BESIDE the NIGHT SKY SECTION  
+
+- It should appear as part of the final experience flow
+
+-----------------------------------
+FEATURE 1: THEATRE MODE DESIGN
+-----------------------------------
+
+- Section should feel like a theatre
+
+Design:
+  • Dark/black background overlay (full width)
+  • Centered large video player
+  • Soft shadow/glow around video
+  • Optional subtle background blur
+
+- Video:
+  • Large but NOT full screen
+  • Maintain 16:9 ratio
+  • Rounded corners
+
+-----------------------------------
+FEATURE 2: REMOVE FULLSCREEN OPTION
+-----------------------------------
+
+- Disable fullscreen button
+
+Use:
+controlsList="nofullscreen nodownload noremoteplayback"
+
+-----------------------------------
+FEATURE 3: VIDEO PLAY BEHAVIOR
+-----------------------------------
+
+When video plays:
+
+1. Reduce background music volume to 10%
+2. Hide/disable lyrics popup completely
+
+When video pauses or ends:
+
+1. Restore music volume to 100%
+2. Show lyrics popup again
+
+-----------------------------------
+FEATURE 4: SMOOTH EXPERIENCE
+-----------------------------------
+
+- Smooth fade-in when section appears
+- Smooth audio volume transition (no sudden jump)
+
+-----------------------------------
+FEATURE 5: INTEGRATION RULES
+-----------------------------------
+
+- Do NOT break:
+  • Envelope flow
+  • Scratch feature
+  • Music player
+  • Lyrics system
+  • Night sky section
+
+- Only ADD this section cleanly
+
+-----------------------------------
+FEATURE 6: TECH IMPLEMENTATION
+-----------------------------------
+
+- Use HTML5 <video>
+- Use JS event listeners:
+  • onplay
+  • onpause
+  • onended
+
+- Control audio:
+  audio.volume = 0.1 (playing)
+  audio.volume = 1 (restore)
+
+- Use flag:
+  isVideoPlaying = true/false
+
+- If isVideoPlaying:
+  → disable lyrics rendering
+
+-----------------------------------
+EXPECTED RESULT
+-----------------------------------
+
+- Video section appears after message page
+- Positioned near night sky section
+- Theatre-like immersive feel
+- No fullscreen option
+- Music lowers + lyrics hide during playback
+- Everything restores after video ends

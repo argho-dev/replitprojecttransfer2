@@ -47,10 +47,13 @@ export default function MusicPlayer() {
   const [loadError,        setLoadError]        = useState(false);
   const [minimised,        setMinimised]        = useState(true);
   const [waitingForGesture, setWaitingForGesture] = useState(false);
+  const [isVideoPlaying,   setIsVideoPlaying]   = useState(false);
+  const userVolumeRef = useRef(0.65);
 
   const gestureListenerRef = useRef<(() => void) | null>(null);
   const eqBarRefs          = useRef<(HTMLDivElement | null)[]>([]);
   const eqRafRef           = useRef<number>(0);
+  const volumeRafRef       = useRef<number>(0);
 
   const tryAutoplay = useCallback(async (audio: HTMLAudioElement) => {
     try {
@@ -191,8 +194,47 @@ export default function MusicPlayer() {
 
   const MAX_EQ_H = 22; /* px — must match RAF loop MAX_H */
 
+  /* ── Theatre video: duck / restore volume ───────────────────── */
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    function smoothTo(target: number) {
+      cancelAnimationFrame(volumeRafRef.current);
+      if (!audio) return;
+      const start = audio.volume;
+      const diff  = target - start;
+      const startTime = performance.now();
+      const DURATION  = 600;
+      const step = (now: number) => {
+        if (!audio) return;
+        const t = Math.min(1, (now - startTime) / DURATION);
+        audio.volume = Math.max(0, Math.min(1, start + diff * t));
+        if (t < 1) volumeRafRef.current = requestAnimationFrame(step);
+      };
+      volumeRafRef.current = requestAnimationFrame(step);
+    }
+
+    const onPlay = () => {
+      setIsVideoPlaying(true);
+      smoothTo(0.1);
+    };
+    const onPause = () => {
+      setIsVideoPlaying(false);
+      smoothTo(userVolumeRef.current);
+    };
+
+    window.addEventListener('theatre:play',  onPlay  as EventListener);
+    window.addEventListener('theatre:pause', onPause as EventListener);
+    return () => {
+      window.removeEventListener('theatre:play',  onPlay  as EventListener);
+      window.removeEventListener('theatre:pause', onPause as EventListener);
+      cancelAnimationFrame(volumeRafRef.current);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = parseFloat(e.target.value);
+    userVolumeRef.current = v;
     setVolume(v);
     if (audioRef.current) audioRef.current.volume = v;
   };
@@ -207,7 +249,7 @@ export default function MusicPlayer() {
 
   return (
     <>
-      <LyricsPopup playing={playing} song={song} currentTime={currentTime} />
+      <LyricsPopup playing={playing} song={song} currentTime={currentTime} isVideoPlaying={isVideoPlaying} />
       <audio
         key={song.filename}
         ref={audioRef}

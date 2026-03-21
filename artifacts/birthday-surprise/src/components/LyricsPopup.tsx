@@ -78,9 +78,10 @@ interface Props {
   playing: boolean;
   song: Song;
   currentTime: number;
+  isVideoPlaying?: boolean;
 }
 
-export default function LyricsPopup({ playing, song, currentTime }: Props) {
+export default function LyricsPopup({ playing, song, currentTime, isVideoPlaying = false }: Props) {
   const [words, setWords]   = useState<WordBurst[]>([]);
   const lastTextRef         = useRef<string | null>(null);
   const lastTimeRef         = useRef<number>(-99);
@@ -183,7 +184,7 @@ export default function LyricsPopup({ playing, song, currentTime }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTime]);
 
-  if (!playing || words.length === 0) return null;
+  if (!playing || words.length === 0 || isVideoPlaying) return null;
 
   return (
     <>

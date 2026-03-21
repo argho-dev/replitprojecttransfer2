@@ -4,6 +4,7 @@ import Starfield from '../components/Starfield';
 import DailyBackground from '../components/DailyBackground';
 import MusicReactLayer from '../components/MusicReactLayer';
 import NightSkyHeart from './NightSkyHeart';
+import TheatreVideo from '../components/TheatreVideo';
 import {
   getCountdownParts,
   getTodayMessages,
@@ -276,6 +277,7 @@ export default function DailySurprise({ onGoToCake }: { onGoToCake?: () => void 
   const [showPopup, setShowPopup]           = useState(false);
   const [popupDismissed, setPopupDismissed] = useState(false);
   const [showNightSky, setShowNightSky]     = useState(false);
+  const [showTheatre, setShowTheatre]       = useState(false);
 
   useEffect(() => {
     if (headerRef.current) {
@@ -401,6 +403,33 @@ export default function DailySurprise({ onGoToCake }: { onGoToCake?: () => void 
               🌙 Night Sky
             </button>
 
+            {/* Theatre Video button */}
+            <button
+              onClick={() => setShowTheatre(true)}
+              title="Watch a special video"
+              style={{
+                background: 'rgba(40,10,6,0.5)',
+                border: '1px solid rgba(255,180,100,0.35)',
+                borderRadius: 20, padding: '0.4rem 0.9rem',
+                cursor: 'pointer', color: '#ffb86c',
+                fontSize: '0.75rem', fontWeight: 600,
+                display: 'flex', alignItems: 'center', gap: '0.35rem',
+                transition: 'background 0.15s, box-shadow 0.2s',
+                boxShadow: '0 0 12px rgba(255,140,60,0.12)',
+                letterSpacing: '0.03em',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(60,15,6,0.65)';
+                e.currentTarget.style.boxShadow = '0 0 18px rgba(255,140,60,0.28)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(40,10,6,0.5)';
+                e.currentTarget.style.boxShadow = '0 0 12px rgba(255,140,60,0.12)';
+              }}
+            >
+              🎬 Watch
+            </button>
+
           {/* Reopen popup button (shows after dismissed) */}
           {popupDismissed && (
               <button
@@ -435,6 +464,11 @@ export default function DailySurprise({ onGoToCake }: { onGoToCake?: () => void 
       {/* Night Sky scene overlay */}
       {showNightSky && (
         <NightSkyHeart onDismiss={() => setShowNightSky(false)} />
+      )}
+
+      {/* Theatre Video overlay */}
+      {showTheatre && (
+        <TheatreVideo onClose={() => setShowTheatre(false)} />
       )}
 
     </div>
