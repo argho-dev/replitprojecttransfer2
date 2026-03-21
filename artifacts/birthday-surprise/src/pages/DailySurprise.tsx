@@ -7,7 +7,6 @@ import NightSkyHeart from './NightSkyHeart';
 import {
   getCountdownParts,
   getTodayMessages,
-  isBirthdayFinalDay,
 } from '../lib/surprises';
 import { spawnFloatingHearts } from '../components/ConfettiEffect';
 
@@ -353,7 +352,7 @@ export default function DailySurprise({ onGoToCake }: { onGoToCake?: () => void 
             <SurpriseCmp
               message={todayMsgs[0]}
               onReveal={() => { setShowPopup(true); setPopupDismissed(false); }}
-              onScratchDone={isBirthdayFinalDay() ? onGoToCake : undefined}
+              onScratchDone={onGoToCake}
             />
           </Suspense>
         )}

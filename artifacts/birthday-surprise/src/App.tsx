@@ -45,7 +45,6 @@ export default function App() {
   };
 
   const handleGoToCake = () => {
-    if (!isBirthdayFinalDay()) return;
     if (cakeTimerRef.current) return;
     cakeTimerRef.current = setTimeout(() => {
       setScreen('cake');
@@ -75,7 +74,7 @@ export default function App() {
 
       {screen === 'surprise' && (
         <Suspense fallback={<LoadingScreen />}>
-          <DailySurprise onGoToCake={handleGoToCake} />
+          <DailySurprise onGoToCake={isBirthdayFinalDay() ? handleGoToCake : undefined} />
         </Suspense>
       )}
 
