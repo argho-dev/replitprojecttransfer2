@@ -32,7 +32,7 @@ export default function TheatreVideo({ onClose }: Props) {
   }
 
   const handlePlay = () => {
-    smoothVolume(0.2);
+    smoothVolume(0.4);
     window.dispatchEvent(new CustomEvent('theatre:play'));
   };
 
